@@ -2,10 +2,9 @@
 
 Here you'll find an implementation of a meta-belarus voting registry implemented in PHP.
 
-## Configuring
+## Run
 
-In your env file specify `DB=mysql://root:secret@localhost/voting-registry-php` then run lumen
-with `php -S localhost:8000 -t public`
+Just run `make up` and open the page `http://localhost`
 
 ## Data Modeling
 
