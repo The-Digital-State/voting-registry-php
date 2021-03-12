@@ -19,3 +19,7 @@ create table in MySQL.
 ## Attaching API endpoints
 
 
+## Specs
+
+Swagger: `/specs/swagger/index.html`  
+Redoc: `/specs/redoc/index.html`
