@@ -4,7 +4,7 @@
 namespace App\Models;
 
 
-use Atk4\Core\Exception;
+use Atk4\Core;
 use Atk4\Data\Model;
 use Atk4\Data\Persistence;
 use Atk4\Data\ValidationException;
@@ -39,9 +39,12 @@ class Poll extends \Atk4\Data\Model
         ]);
         $this->addField('elected_candidates', [
             'type'=>'numeric',
-            'description'=>'for type=E'
+            'description'=>'for type=Election, how many candidates must be chosen from the list'
         ]);
-        $this->addField('petition_threshold', ['type'=>'numeric']);
+        $this->addField('petition_threshold', [
+            'type'=>'numeric',
+            'description'=>'How many votes are needed, before voting envelopes will open'
+        ]);
 
 
         // Poll starts in 'draft' status and editing is allowed at this time.
@@ -56,7 +59,8 @@ class Poll extends \Atk4\Data\Model
         $this->addUserAction('publish');
         $this->addHook($this::HOOK_BEFORE_SAVE, function ($m){
             if($m['status'] != 'draft') {
-                throw (new Exception('Poll is public and cannot be changed'))->addMoreInfo('poll', $m);
+                throw (new Core\Exception('Poll is public and cannot be changed'))
+                    ->addMoreInfo('poll', $m);
             }
         });
         $this->addUserAction('vote');
@@ -64,37 +68,40 @@ class Poll extends \Atk4\Data\Model
         $this->addField('start', ['type'=>'datetime']);
         $this->addField('end', ['type'=>'datetime']);
 
+        $this->hasMany('Choices');
+        $this->hasMany('ParticipationCriterias');
 
-        // questions = [ { question: 'who', options: [ { option: 'john' } ] } ]
-        $this->containsMany('questions', [
-            'caption' => 'Poll Questions',
-            'model' => new Class extends Model {
-                public function init():void {
-                    parent::init();
-                    $this->addField('question');
-                    $this->containsMany('options', [
-                        'caption' => 'Available Options',
-                        'model' => new Class extends Model {
-                            public function init():void {
-                                parent::init();
-                                $this->addField('option');
-                            }
-                        }
-                    ]);
-                }
-            }
-        ]);
-
-        $this->containsMany('participantList', [
-            'caption' => 'Participant Links',
-            'model' => new Class extends Model {
-                public function init():void {
-                    parent::init();
-                    $this->hasOne('participant')
-                        ->addFields(['name']);
-                }
-            }
-        ]);
+//
+//        // questions = [ { question: 'who', options: [ { option: 'john' } ] } ]
+//        $this->containsMany('questions', [
+//            'caption' => 'Poll Questions',
+//            'model' => new Class extends Model {
+//                public function init():void {
+//                    parent::init();
+//                    $this->addField('question');
+//                    $this->containsMany('options', [
+//                        'caption' => 'Available Options',
+//                        'model' => new Class extends Model {
+//                            public function init():void {
+//                                parent::init();
+//                                $this->addField('option');
+//                            }
+//                        }
+//                    ]);
+//                }
+//            }
+//        ]);
+//
+//        $this->containsMany('participantList', [
+//            'caption' => 'Participant Links',
+//            'model' => new Class extends Model {
+//                public function init():void {
+//                    parent::init();
+//                    $this->hasOne('participant')
+//                        ->addFields(['name']);
+//                }
+//            }
+//        ]);
     }
 
 }
