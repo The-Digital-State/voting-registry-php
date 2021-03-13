@@ -1,6 +1,8 @@
 <?php
 
-/** @var \Laravel\Lumen\Routing\Router $router */
+use Laravel\Lumen\Routing\Router;
+
+/** @var Router $router */
 
 /*
 |--------------------------------------------------------------------------
