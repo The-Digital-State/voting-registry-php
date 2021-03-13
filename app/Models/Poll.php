@@ -33,7 +33,7 @@ class Poll extends \Atk4\Data\Model
         // - Petition will have only a single choice. Petition defines a threshold
         //    when it becomes 'open'
         $this->addField('type', [
-            'enum'=>['vote', 'election', 'Petition'],
+            'enum'=>['vote', 'election', 'petition'],
             'description'=>'Vote selects a single choice. Election will permit multiple candidates to win. '.
                 'Petition has one choice and vote threshold when it becomes public'
         ]);
@@ -50,7 +50,8 @@ class Poll extends \Atk4\Data\Model
         // Poll starts in 'draft' status and editing is allowed at this time.
         $this->addField('status', [
             'enum'=>['draft', 'public', 'finished'],
-            'default'=>'draft'
+            'default'=>'draft',
+            'editable'=>false,
         ]);
         $this->addCalculatedField('active', function($m){
             $ts = new \DateTime();
@@ -68,8 +69,8 @@ class Poll extends \Atk4\Data\Model
         $this->addField('start', ['type'=>'datetime']);
         $this->addField('end', ['type'=>'datetime']);
 
-        $this->hasMany('Choices');
-        $this->hasMany('ParticipationCriterias');
+        $this->hasMany('Choices', ['model'=>Choice::class]);
+        $this->hasMany('ParticipationCriterias', ['model'=>ParticipationCriteria::class]);
 
 //
 //        // questions = [ { question: 'who', options: [ { option: 'john' } ] } ]

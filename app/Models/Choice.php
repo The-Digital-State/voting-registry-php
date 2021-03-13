@@ -10,7 +10,7 @@ use App\Models;
 
 class Choice extends \Atk4\Data\Model
 {
-    public $table = 'user';
+    public $table = 'choice';
     public function __construct(Persistence $persistence = null)
     {
         parent::__construct($persistence);

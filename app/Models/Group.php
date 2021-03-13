@@ -20,5 +20,7 @@ class Group extends \Atk4\Data\Model
 
         $this->addField('name');
         $this->addField('emails', ['type'=>'text']);
+
+        $this->addUserAction('send_invite', ['args'=>['type'=>'Poll']]);
     }
 }
