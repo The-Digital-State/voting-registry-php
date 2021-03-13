@@ -4,8 +4,10 @@
 namespace App\Models;
 
 
+use Atk4\Core\Exception;
 use Atk4\Data\Model;
 use Atk4\Data\Persistence;
+use Atk4\Data\ValidationException;
 
 class Poll extends \Atk4\Data\Model
 {
@@ -19,14 +21,48 @@ class Poll extends \Atk4\Data\Model
     {
         parent::init();
 
-        $this->addField('publicUid');
-        $this->addField('status', ['enum'=>['DRAFT', 'LIVE']]);
+        // Basic information about Vote
         $this->addField('title');
         $this->addField('description');
-        $this->addField('timeStart', ['type'=>'datetime']);
-        $this->addField('timeEnd', ['type'=>'datetime']);
-        $this->addField('created', ['type'=>'datetime']);
-        $this->addField('updated', ['type'=>'datetime']);
+
+        // Types explained:
+        //  - Vote could be binary or multiple choices, the outcome is a decision
+        //    on activating a specific process. Result is a single outcome.
+        // - Election will have candidates as multiple choices, and the outcome
+        //    will provide "N" winners by top number of votes
+        // - Petition will have only a single choice. Petition defines a threshold
+        //    when it becomes 'open'
+        $this->addField('type', [
+            'enum'=>['vote', 'election', 'Petition'],
+            'description'=>'Vote selects a single choice. Election will permit multiple candidates to win. '.
+                'Petition has one choice and vote threshold when it becomes public'
+        ]);
+        $this->addField('elected_candidates', [
+            'type'=>'numeric',
+            'description'=>'for type=E'
+        ]);
+        $this->addField('petition_threshold', ['type'=>'numeric']);
+
+
+        // Poll starts in 'draft' status and editing is allowed at this time.
+        $this->addField('status', [
+            'enum'=>['draft', 'public', 'finished'],
+            'default'=>'draft'
+        ]);
+        $this->addCalculatedField('active', function($m){
+            $ts = new \DateTime();
+            return $m['status'] === 'public' && $m['start'] < $ts && $ts < $m['finish'];
+        });
+        $this->addUserAction('publish');
+        $this->addHook($this::HOOK_BEFORE_SAVE, function ($m){
+            if($m['status'] != 'draft') {
+                throw (new Exception('Poll is public and cannot be changed'))->addMoreInfo('poll', $m);
+            }
+        });
+        $this->addUserAction('vote');
+
+        $this->addField('start', ['type'=>'datetime']);
+        $this->addField('end', ['type'=>'datetime']);
 
 
         // questions = [ { question: 'who', options: [ { option: 'john' } ] } ]
