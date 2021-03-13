@@ -20,7 +20,12 @@ class ParticipationCriteria extends \Atk4\Data\Model
 
         $this->addField('name');
         $this->addField('check', [
-            'enum'=>['document_ownership']
+            'enum'=>['document_ownership', 'mvp_token']
+        ]);
+        $this->addField('document_type');
+        $this->addField('document_authority');
+        $this->addField('mvp_token_seed', [
+            'editable'=>false
         ]);
     }
 }
