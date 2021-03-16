@@ -27,8 +27,9 @@ $router->get('poll', 'Polls@list');
 $router->get('poll/{id}', 'Polls@get');
 
 $router->get('list', 'Lists@list');
-$router->get('list/{id}', 'Lists@get');
 $router->put('list', 'Lists@add');
+
+$router->get('list/{id}', 'Lists@get');
 $router->put('list/{id}', 'Lists@save');
 $router->delete('list/{id}', 'Lists@delete');
 

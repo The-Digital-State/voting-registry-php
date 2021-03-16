@@ -1,29 +1,251 @@
 openapi: 3.0.1
-# see https://api.vote.dowith.me/swagger/vote-1.0.yml
-
 info:
-  version: 0.0.1
-  title: "Voting Api"
-
+  title: defaultTitle
+  description: defaultDescription
+  version: '0.1'
+servers:
+  - url: 'http://localhost:8000'
 paths:
-  /polls:
+  /poll/4:
     get:
-      summary: "Get "
+      description: Auto generated using Swagger Inspector
       responses:
-        422:
-          description: "Validation error"
+        '200':
+          description: Auto generated using Swagger Inspector
           content:
             application/json:
               schema:
-                er
-
-  /:
+                type: object
+                properties:
+                  count:
+                    type: string
+                  start:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                      timezone:
+                        type: string
+                      timezone_type:
+                        type: integer
+                  description:
+                    type: string
+                  active:
+                    type: boolean
+                  participant_emails: {}
+                  end:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                      timezone:
+                        type: string
+                      timezone_type:
+                        type: integer
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  choices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        poll_id:
+                          type: integer
+                        name:
+                          type: string
+                        votes:
+                          type: string
+                        id:
+                          type: integer
+                  status:
+                    type: string
+              examples:
+                '0':
+                  value: >-
+                    {"id":4,"title":"Unpopular framework
+                    vote","description":"Eloquent or Agile
+                    Data?","status":"draft","active":false,"count":"1","start":{"date":"2021-03-17
+                    12:00:00.000000","timezone_type":3,"timezone":"UTC"},"end":{"date":"2021-03-25
+                    12:00:00.000000","timezone_type":3,"timezone":"UTC"},"participant_emails":null,"choices":[{"id":1,"poll_id":4,"votes":"1","name":"Elquent"},{"id":2,"poll_id":4,"votes":"0","name":"Something
+                    else"},{"id":3,"poll_id":4,"votes":"0","name":"Agile
+                    Data"}]}
+      servers:
+        - url: 'http://localhost:8000'
+    servers:
+      - url: 'http://localhost:8000'
+  /list/1:
     get:
-      summary: "Get Lumen version"
+      description: Auto generated using Swagger Inspector
       responses:
-        200:
-          description: "Version of Lumen"
+        '200':
+          description: Auto generated using Swagger Inspector
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  emails:
+                    type: string
+                  name:
+                    type: string
+                  id:
+                    type: integer
+              examples:
+                '0':
+                  value: >-
+                    {"id":1,"name":"test
+                    list","emails":"foo@bar.baz\nabc@yahoo.com"}
+      servers:
+        - url: 'http://localhost:8000'
+    servers:
+      - url: 'http://localhost:8000'
+  /poll:
+    get:
+      description: Auto generated using Swagger Inspector
+      responses:
+        '200':
+          description: Auto generated using Swagger Inspector
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                '0':
+                  value: >-
+                    [{"id":4,"title":"Unpopular framework
+                    vote","description":"Eloquent or Agile
+                    Data?","status":"draft","count":"1","start":{"date":"2021-03-17
+                    12:00:00.000000","timezone_type":3,"timezone":"UTC"},"end":{"date":"2021-03-25
+                    12:00:00.000000","timezone_type":3,"timezone":"UTC"},"participant_emails":null}]
+      servers:
+        - url: 'http://localhost:8000'
+    servers:
+      - url: 'http://localhost:8000'
+  /list:
+    get:
+      description: Auto generated using Swagger Inspector
+      responses:
+        '200':
+          description: Auto generated using Swagger Inspector
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                '0':
+                  value: '[{"name":"test list","id":1},{"name":"test","id":2}]'
+      servers:
+        - url: 'http://localhost:8000'
+    put:
+      description: Auto generated using Swagger Inspector
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                emails:
+                  type: string
+                name:
+                  type: string
+            examples:
+              '0':
+                value: '{"name": "new list", "emails": "foo@bar.baz, ted@yahoo.com"}'
+      responses:
+        '200':
+          description: Auto generated using Swagger Inspector
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  emails:
+                    type: string
+                  name:
+                    type: string
+                  id:
+                    type: integer
+              examples:
+                '0':
+                  value: >-
+                    {"id":6,"name":"new list","emails":"foo@bar.baz,
+                    ted@yahoo.com"}
+      servers:
+        - url: 'http://localhost:8000'
+    servers:
+      - url: 'http://localhost:8000'
+  /list/6:
+    put:
+      description: Auto generated using Swagger Inspector
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                emails:
+                  type: string
+                name:
+                  type: string
+            examples:
+              '0':
+                value: >-
+                  {"name": "new list", "emails": "foo@bar.baz, ted@yahoo.com,
+                  steve@example.com"}
+              '1':
+                value: >-
+                  {"name": "new list", "emails": "foo@bar.baz, ted@yahoo.com,
+                  steve@example.com"}
+      responses:
+        '200':
+          description: Auto generated using Swagger Inspector
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  emails:
+                    type: string
+                  name:
+                    type: string
+                  id:
+                    type: integer
+              examples:
+                '0':
+                  value: >-
+                    {"id":6,"name":"new list","emails":"foo@bar.baz,
+                    ted@yahoo.com, steve@example.com"}
+      servers:
+        - url: 'http://localhost:8000'
+    delete:
+      description: Auto generated using Swagger Inspector
+      responses:
+        '200':
+          description: Auto generated using Swagger Inspector
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted:
+                    type: object
+                    properties:
+                      emails:
+                        type: string
+                      name:
+                        type: string
+                      id:
+                        type: integer
+              examples:
+                '0':
+                  value: >-
+                    {"deleted":{"id":6,"name":"new list","emails":"foo@bar.baz,
+                    ted@yahoo.com, steve@example.com"}}
+      servers:
+        - url: 'http://localhost:8000'
+    servers:
+      - url: 'http://localhost:8000'
