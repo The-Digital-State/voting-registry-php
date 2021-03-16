@@ -8,15 +8,25 @@ use App\Models;
 
 class Polls extends Controller
 {
-    protected $polls;
+    protected $entity;
 
-    public function __construct(Models\Poll $polls)
+    public function __construct(Models\Poll $entity)
     {
-        $this->polls = $polls;
+        $this->entity = $entity;
     }
 
     public function list(): array
     {
-        return $this->polls->export();
+        return $this->entity->export();
+    }
+
+    public function get($id): array
+    {
+        $this->entity->load($id);
+        $data = $this->entity->get();
+
+        $data['choices']=$this->entity->ref('Choices')->export();
+
+        return $data;
     }
 }

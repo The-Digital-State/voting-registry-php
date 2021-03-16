@@ -24,6 +24,10 @@ class Migrator extends Controller
         $res = [];
         $res[] = (new \Atk4\Schema\Migration(new Models\User($this->db)))->dropIfExists()->create();
         $res[] = (new \Atk4\Schema\Migration(new Models\Poll($this->db)))->dropIfExists()->create();
+        $res[] = (new \Atk4\Schema\Migration(new Models\Choice($this->db)))->dropIfExists()->create();
+        $res[] = (new \Atk4\Schema\Migration(new Models\EmailList($this->db)))->dropIfExists()->create();
+        $res[] = (new \Atk4\Schema\Migration(new Models\ParticipationCriteria($this->db)))->dropIfExists()->create();
+        $res[] = (new \Atk4\Schema\Migration(new Models\Vote($this->db)))->dropIfExists()->create();
         return $res;
     }
 }

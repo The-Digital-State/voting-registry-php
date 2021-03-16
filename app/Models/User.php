@@ -19,6 +19,8 @@ class User extends Model {
         $this->addField('name');
         $this->addField('email');
 
+        $this->addField('microsoft_teams_id');
+
         $this->addField('meta_document_id');
     }
 }

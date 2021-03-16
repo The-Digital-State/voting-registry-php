@@ -6,9 +6,9 @@ namespace App\Models;
 
 use Atk4\Data\Persistence;
 
-class Group extends \Atk4\Data\Model
+class EmailList extends \Atk4\Data\Model
 {
-    public $table = 'user';
+    public $table = 'email_list';
     public function __construct(Persistence $persistence = null)
     {
         parent::__construct($persistence);
@@ -21,6 +21,6 @@ class Group extends \Atk4\Data\Model
         $this->addField('name');
         $this->addField('emails', ['type'=>'text']);
 
-        $this->addUserAction('send_invite', ['args'=>['type'=>'Poll']]);
+        $this->addUserAction('send_invite', ['args'=>['type'=>new Poll()]]);
     }
 }
