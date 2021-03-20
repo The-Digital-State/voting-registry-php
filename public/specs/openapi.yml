@@ -2,16 +2,686 @@ openapi: 3.0.1
 
 info:
   version: 0.0.1
-  title: "Voting Api"
+  title: Voting Api
+
+servers:
+  - url: http://localhost:80
+    description: Local server
+
+tags:
+  - name: Admin part
+    description: Everything about admin part
+  - name: Voter part
+    description: Everything about voter part
+
 
 paths:
-  /:
+  /admin/email-lists:
     get:
-      summary: "Get Lumen version"
+      tags:
+        - Admin part
+      summary: Get all email lists
       responses:
         200:
-          description: "Version of Lumen"
+          description: Array of email lists
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 99
+                    title:
+                      type: string
+                      example: Двор Перамен
+                    emailsCount:
+                      type: integer
+                      example: 99
+                  required:
+                    - id
+                    - title
+                    - emailsCount
+
+  /admin/email-list:
+    post:
+      tags:
+        - Admin part
+      summary: Create a new email list
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Двор Перамен
+                emails:
+                  type: array
+                  items:
+                    type: string
+                    example: test@test.com
+              required:
+                - title
+        required: true
+      responses:
+        201:
+          description: Email list was created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Двор Перамен
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: test@test.com
+                required:
+                  - id
+                  - title
+                  - emails
+        422:
+          description: Validation exception
+          content: { }
+    put:
+      tags:
+        - Admin part
+      summary: Update an existing creator email list
+      parameters:
+        - name: id
+          in: path
+          description: ID of email list
+          required: true
+          schema:
+            type: integer
+            example: 99
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Двор Перамен
+                emails:
+                  type: array
+                  items:
+                    type: string
+                    example: test@test.com
+              required:
+                - title
+        required: true
+      responses:
+        201:
+          description: Email list was updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Двор Перамен
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: test@test.com
+                required:
+                  - id
+                  - title
+                  - emails
+        404:
+          description: Email list not found
+          content: { }
+        422:
+          description: Validation exception
+          content: { }
+    delete:
+      tags:
+        - Admin part
+      summary: Delete email list
+      parameters:
+        - name: id
+          in: path
+          description: ID of email list
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Email list was deleted
+          content: { }
+        404:
+          description: Email list not found
+          content: { }
+
+  /admin/polls:
+    get:
+      tags:
+        - Admin part
+      summary: Get all polls
+      responses:
+        200:
+          description: Array of polls
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 100
+                    name:
+                      type: string
+                      example: Что поставить во Дворе Перамен
+                    startDate:
+                      type: string
+                      format: date-time
+                      example: 2017-07-21T17:32:28Z
+                      nullable: true
+                    endDate:
+                      type: string
+                      format: date-time
+                      example: 2017-07-21T17:32:28Z
+                      nullable: true
+                    emailListName:
+                      type: string
+                      example: Двор Перамен
+                      nullable: true
+                    status:
+                      type: string
+                      example: draft
+                      enum:
+                        - draft
+                        - published
+                        - active
+                        - finished
+                  required:
+                    - id
+                    - name
+                    - startDate
+                    - endDate
+                    - emailListName
+                    - status
+  /admin/poll/draft:
+    post:
+      tags:
+        - Admin part
+      summary: Create a new draft poll
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Что поставить во Дворе Перамен
+                description:
+                  type: string
+                  maxLength: 1500
+                  example: Полное описание. Здесь можно писать очень много букв
+                shortDescription:
+                  type: string
+                  maxLength: 350
+                  example: Краткое описание. Здесь можно писать чуть меньше букв
+                startDate:
+                  type: string
+                  format: date-time
+                  example: 2017-07-21T17:32:28Z
+                endDate:
+                  type: string
+                  format: date-time
+                  example: 2017-07-21T17:32:28Z
+                question:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Что поставить?
+                    options:
+                      type: array
+                      items:
+                        type: string
+                        example: Фонтан
+                emailListId:
+                  type: integer
+                  example: 66
+              required:
+                - name
+        required: true
+      responses:
+        201:
+          description: "New poll was created"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  name:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  description:
+                    type: string
+                    maxLength: 1500
+                    example: Полное описание. Здесь можно писать очень много букв
+                    nullable: true
+                  shortDescription:
+                    type: string
+                    maxLength: 350
+                    example: Краткое описание. Здесь можно писать чуть меньше букв
+                    nullable: true
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                    nullable: true
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                    nullable: true
+                  question:
+                    type: object
+                    nullable: true
+                    properties:
+                      name:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: string
+                          example: Фонтан
+                  emailListId:
+                    type: integer
+                    example: 66
+                    nullable: true
+                  status:
+                    type: string
+                    example: draft
+                    enum:
+                      - draft
+                required:
+                  - id
+                  - name
+                  - description
+                  - shortDescription
+                  - startDate
+                  - endDate
+                  - question
+                  - emailListId
+                  - status
+        422:
+          description: Validation exception
+          content: { }
+    put:
+      tags:
+        - Admin part
+      summary: Update an existing draft poll
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Что поставить во Дворе Перамен
+                description:
+                  type: string
+                  maxLength: 1500
+                  example: Полное описание. Здесь можно писать очень много букв
+                shortDescription:
+                  type: string
+                  maxLength: 350
+                  example: Краткое описание. Здесь можно писать чуть меньше букв
+                startDate:
+                  type: string
+                  format: date-time
+                  example: 2017-07-21T17:32:28Z
+                endDate:
+                  type: string
+                  format: date-time
+                  example: 2017-07-21T17:32:28Z
+                question:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Что поставить?
+                    options:
+                      type: array
+                      items:
+                        type: string
+                        example: Фонтан
+                emailListId:
+                  type: integer
+                  example: 66
+              required:
+                - name
+        required: true
+      responses:
+        201:
+          description: "The poll was updated"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  name:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  description:
+                    type: string
+                    maxLength: 1500
+                    example: Полное описание. Здесь можно писать очень много букв
+                    nullable: true
+                  shortDescription:
+                    type: string
+                    maxLength: 350
+                    example: Краткое описание. Здесь можно писать чуть меньше букв
+                    nullable: true
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                    nullable: true
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                    nullable: true
+                  question:
+                    type: object
+                    nullable: true
+                    properties:
+                      name:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: string
+                          example: Фонтан
+                  emailListId:
+                    type: integer
+                    example: 66
+                    nullable: true
+                  status:
+                    type: string
+                    example: draft
+                    enum:
+                      - draft
+                required:
+                  - id
+                  - name
+                  - description
+                  - shortDescription
+                  - startDate
+                  - endDate
+                  - question
+                  - emailListId
+                  - status
+        422:
+          description: Validation exception
+          content: { }
+
+  /admin/poll/publish:
+    put:
+      tags:
+        - Admin part
+      summary: Publish a poll
+      parameters:
+        - name: id
+          in: path
+          description: ID of email list
+          required: true
+          schema:
+            type: integer
+            example: 99
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Что поставить во Дворе Перамен
+                description:
+                  type: string
+                  maxLength: 1500
+                  example: Полное описание. Здесь можно писать очень много букв
+                shortDescription:
+                  type: string
+                  maxLength: 350
+                  example: Краткое описание. Здесь можно писать чуть меньше букв
+                startDate:
+                  type: string
+                  format: date-time
+                  example: 2017-07-21T17:32:28Z
+                endDate:
+                  type: string
+                  format: date-time
+                  example: 2017-07-21T17:32:28Z
+                question:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Что поставить?
+                    options:
+                      type: array
+                      items:
+                        type: string
+                        example: Фонтан
+                emailListId:
+                  type: integer
+                  example: 66
+              required:
+                - name
+                - description
+                - startDate
+                - endDate
+                - question
+                - emailListId
+        required: true
+      responses:
+        201:
+          description: "New poll was created"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  name:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  description:
+                    type: string
+                    maxLength: 1500
+                    example: Полное описание. Здесь можно писать очень много букв
+                  shortDescription:
+                    type: string
+                    maxLength: 350
+                    example: Краткое описание. Здесь можно писать чуть меньше букв
+                    nullable: true
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                  question:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: string
+                          example: Фонтан
+                  emailListId:
+                    type: integer
+                    example: 66
+                  status:
+                    type: string
+                    example: published
+                    enum:
+                      - published
+                required:
+                  - id
+                  - name
+                  - description
+                  - shortDescription
+                  - startDate
+                  - endDate
+                  - question
+                  - emailListId
+                  - status
+        422:
+          description: Validation exception
+          content: { }
+
+  /admin/poll/preview_link:
+    get:
+      tags:
+        - Admin part
+      summary: Get a preview link for published poll
+      parameters:
+        - name: id
+          in: path
+          description: ID of a published poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Preview link for published poll
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    type: string
+                    example: https://albo.vote/Ias86fg656sdDas
+        404:
+          description: Published poll wasn't found
+          content: { }
+
+  /voter/poll/preview:
+    get:
+      tags:
+        - Voter part
+      summary: Get published poll data for preview
+      parameters:
+        - name: id
+          in: path
+          description: ID of a published poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Published poll data for preview
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  name:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  description:
+                    type: string
+                    maxLength: 1500
+                    example: Полное описание. Здесь можно писать очень много букв
+                  shortDescription:
+                    type: string
+                    maxLength: 350
+                    example: Краткое описание. Здесь можно писать чуть меньше букв
+                    nullable: true
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                  question:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: string
+                          example: Фонтан
+                  status:
+                    type: string
+                    example: published
+                    enum:
+                      - published
+                      - active
+                      - finished
+                required:
+                  - id
+                  - name
+                  - description
+                  - shortDescription
+                  - startDate
+                  - endDate
+                  - question
+                  - status
+        404:
+          description: Published poll wasn't found
+          content: { }
