@@ -189,7 +189,7 @@ paths:
                     id:
                       type: integer
                       example: 100
-                    name:
+                    title:
                       type: string
                       example: Что поставить во Дворе Перамен
                     startDate:
@@ -202,9 +202,13 @@ paths:
                       format: date-time
                       example: 2017-07-21T17:32:28Z
                       nullable: true
-                    emailListName:
+                    emailListTitle:
                       type: string
                       example: Двор Перамен
+                      nullable: true
+                    previewLink:
+                      type: string
+                      example: albo.vote/preview/1
                       nullable: true
                     status:
                       type: string
@@ -216,11 +220,94 @@ paths:
                         - finished
                   required:
                     - id
-                    - name
+                    - title
                     - startDate
                     - endDate
-                    - emailListName
+                    - emailListTitle
+                    - previewLink
                     - status
+  /admin/poll:
+    get:
+      tags:
+        - Admin part
+      summary: Get poll data
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Get poll data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 99
+                    title:
+                      type: string
+                      example: Что поставить во Дворе Перамен
+                    description:
+                      type: string
+                      maxLength: 1500
+                      example: Полное описание. Здесь можно писать очень много букв
+                      nullable: true
+                    shortDescription:
+                      type: string
+                      maxLength: 350
+                      example: Краткое описание. Здесь можно писать чуть меньше букв
+                      nullable: true
+                    startDate:
+                      type: string
+                      format: date-time
+                      example: 2017-07-21T17:32:28Z
+                      nullable: true
+                    endDate:
+                      type: string
+                      format: date-time
+                      example: 2017-07-21T17:32:28Z
+                      nullable: true
+                    question:
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                          example: Что поставить?
+                        options:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              option:
+                                type: string
+                                example: Фонтан
+                              option_index:
+                                type: integer
+                                example: 1
+                                description: The order of the option
+                      nullable: true
+                    emailListId:
+                      type: integer
+                      example: 99
+                      nullable: true
+                  required:
+                    - id
+                    - title
+                    - description
+                    - shortDescription
+                    - startDate
+                    - endDate
+                    - question
+                    - emailListId
+
   /admin/poll/draft:
     post:
       tags:
@@ -232,7 +319,7 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                title:
                   type: string
                   example: Что поставить во Дворе Перамен
                 description:
@@ -254,19 +341,26 @@ paths:
                 question:
                   type: object
                   properties:
-                    name:
+                    title:
                       type: string
                       example: Что поставить?
                     options:
                       type: array
                       items:
-                        type: string
-                        example: Фонтан
+                        type: object
+                        properties:
+                          option:
+                            type: string
+                            example: Фонтан
+                          option_index:
+                            type: integer
+                            example: 1
+                            description: The order of the option
                 emailListId:
                   type: integer
                   example: 66
               required:
-                - name
+                - title
         required: true
       responses:
         201:
@@ -279,7 +373,7 @@ paths:
                   id:
                     type: integer
                     example: 99
-                  name:
+                  title:
                     type: string
                     example: Что поставить во Дворе Перамен
                   description:
@@ -306,14 +400,21 @@ paths:
                     type: object
                     nullable: true
                     properties:
-                      name:
+                      title:
                         type: string
                         example: Что поставить?
                       options:
                         type: array
                         items:
-                          type: string
-                          example: Фонтан
+                          type: object
+                          properties:
+                            option:
+                              type: string
+                              example: Фонтан
+                            option_index:
+                              type: integer
+                              example: 1
+                              description: The order of the option
                   emailListId:
                     type: integer
                     example: 66
@@ -325,7 +426,7 @@ paths:
                       - draft
                 required:
                   - id
-                  - name
+                  - title
                   - description
                   - shortDescription
                   - startDate
@@ -354,7 +455,7 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                title:
                   type: string
                   example: Что поставить во Дворе Перамен
                 description:
@@ -376,19 +477,26 @@ paths:
                 question:
                   type: object
                   properties:
-                    name:
+                    title:
                       type: string
                       example: Что поставить?
                     options:
                       type: array
                       items:
-                        type: string
-                        example: Фонтан
+                        type: object
+                        properties:
+                          option:
+                            type: string
+                            example: Фонтан
+                          option_index:
+                            type: integer
+                            example: 1
+                            description: The order of the option
                 emailListId:
                   type: integer
                   example: 66
               required:
-                - name
+                - title
         required: true
       responses:
         201:
@@ -401,7 +509,7 @@ paths:
                   id:
                     type: integer
                     example: 99
-                  name:
+                  title:
                     type: string
                     example: Что поставить во Дворе Перамен
                   description:
@@ -428,14 +536,21 @@ paths:
                     type: object
                     nullable: true
                     properties:
-                      name:
+                      title:
                         type: string
                         example: Что поставить?
                       options:
                         type: array
                         items:
-                          type: string
-                          example: Фонтан
+                          type: object
+                          properties:
+                            option:
+                              type: string
+                              example: Фонтан
+                            option_index:
+                              type: integer
+                              example: 1
+                              description: The order of the option
                   emailListId:
                     type: integer
                     example: 66
@@ -447,7 +562,7 @@ paths:
                       - draft
                 required:
                   - id
-                  - name
+                  - title
                   - description
                   - shortDescription
                   - startDate
@@ -478,7 +593,7 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                title:
                   type: string
                   example: Что поставить во Дворе Перамен
                 description:
@@ -500,19 +615,26 @@ paths:
                 question:
                   type: object
                   properties:
-                    name:
+                    title:
                       type: string
                       example: Что поставить?
                     options:
                       type: array
                       items:
-                        type: string
-                        example: Фонтан
+                        type: object
+                        properties:
+                          option:
+                            type: string
+                            example: Фонтан
+                          option_index:
+                            type: integer
+                            example: 1
+                            description: The order of the option
                 emailListId:
                   type: integer
                   example: 66
               required:
-                - name
+                - title
                 - description
                 - startDate
                 - endDate
@@ -530,7 +652,7 @@ paths:
                   id:
                     type: integer
                     example: 99
-                  name:
+                  title:
                     type: string
                     example: Что поставить во Дворе Перамен
                   description:
@@ -553,17 +675,27 @@ paths:
                   question:
                     type: object
                     properties:
-                      name:
+                      title:
                         type: string
                         example: Что поставить?
                       options:
                         type: array
                         items:
-                          type: string
-                          example: Фонтан
+                          type: object
+                          properties:
+                            option:
+                              type: string
+                              example: Фонтан
+                            option_index:
+                              type: integer
+                              example: 1
+                              description: The order of the option
                   emailListId:
                     type: integer
                     example: 66
+                  previewLink:
+                    type: string
+                    example: albo.vote/preview/1
                   status:
                     type: string
                     example: published
@@ -571,44 +703,17 @@ paths:
                       - published
                 required:
                   - id
-                  - name
+                  - title
                   - description
                   - shortDescription
                   - startDate
                   - endDate
                   - question
                   - emailListId
+                  - previewLink
                   - status
         422:
           description: Validation exception
-          content: { }
-
-  /admin/poll/preview_link:
-    get:
-      tags:
-        - Admin part
-      summary: Get a preview link for published poll
-      parameters:
-        - name: id
-          in: path
-          description: ID of a published poll
-          required: true
-          schema:
-            type: integer
-            example: 99
-      responses:
-        200:
-          description: Preview link for published poll
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  link:
-                    type: string
-                    example: https://albo.vote/Ias86fg656sdDas
-        404:
-          description: Published poll wasn't found
           content: { }
 
   /voter/poll/preview:
@@ -635,18 +740,13 @@ paths:
                   id:
                     type: integer
                     example: 99
-                  name:
+                  title:
                     type: string
                     example: Что поставить во Дворе Перамен
                   description:
                     type: string
                     maxLength: 1500
                     example: Полное описание. Здесь можно писать очень много букв
-                  shortDescription:
-                    type: string
-                    maxLength: 350
-                    example: Краткое описание. Здесь можно писать чуть меньше букв
-                    nullable: true
                   startDate:
                     type: string
                     format: date-time
@@ -658,14 +758,32 @@ paths:
                   question:
                     type: object
                     properties:
-                      name:
+                      title:
                         type: string
                         example: Что поставить?
                       options:
                         type: array
                         items:
-                          type: string
-                          example: Фонтан
+                          type: object
+                          properties:
+                            option:
+                              type: string
+                              example: Фонтан
+                            option_index:
+                              type: integer
+                              example: 1
+                              description: The order of the option
+                            percentage:
+                              type: integer
+                              example: 56
+                              nullable: true
+                          required:
+                            - option
+                            - option_index
+                            - percentage
+                    required:
+                      - title
+                      - options
                   status:
                     type: string
                     example: published
@@ -673,15 +791,267 @@ paths:
                       - published
                       - active
                       - finished
+                      - closed
+                  stats:
+                    type: object
+                    properties:
+                      voted:
+                        type: integer
+                        example: 100
+                        description: How many people casted a vote
+                        nullable: true
+                    required:
+                      - voted
+                  previewLink:
+                    type: string
+                    example: albo.vote/preview/1
                 required:
                   - id
-                  - name
+                  - title
                   - description
-                  - shortDescription
                   - startDate
                   - endDate
                   - question
                   - status
+                  - stats
+                  - previewLink
         404:
           description: Published poll wasn't found
+          content: { }
+
+  /voter/poll/result:
+    get:
+      tags:
+        - Voter part
+      summary: Get all poll data for result
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Finished poll data for result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                  question:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            option:
+                              type: string
+                              example: Фонтан
+                            option_index:
+                              type: integer
+                              example: 1
+                              description: The order of the option
+                            count:
+                              type: string
+                              example: 199
+                            percentage:
+                              type: integer
+                              example: 67
+                          required:
+                            - option
+                            - option_index
+                            - count
+                            - percentage
+                        nullable: true
+                    required:
+                      - title
+                      - options
+                  status:
+                    type: string
+                    example: finished
+                    enum:
+                      - published
+                      - active
+                      - finished
+                  stats:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 115
+                        description: How many people had a possibility to cast a vote
+                      voted:
+                        type: integer
+                        example: 100
+                        description: How many people casted a vote
+                      unvoted:
+                        type: integer
+                        example: 15
+                        description: How many people didn't cast a vote
+                    nullable: true
+                    required:
+                      - total
+                      - voted
+                      - unvoted
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 15
+                          description: The order in the result table
+                        token:
+                          type: string
+                          example: 8723hfdsf75657sdf9gfdasd86
+                        option:
+                          type: string
+                          example: Фонтан
+                        option_index:
+                          type: integer
+                          example: 1
+                          description: The order of the option
+                      required:
+                        - id
+                        - token
+                        - option
+                        - option_index
+                    nullable: true
+                  previewLink:
+                    type: string
+                    example: albo.vote/preview/1
+                required:
+                  - id
+                  - title
+                  - startDate
+                  - endDate
+                  - question
+                  - status
+                  - stats
+                  - results
+                  - previewLink
+        404:
+          description: Poll was not found
+          content: { }
+
+  /voter/poll/question:
+    get:
+      tags:
+        - Voter part
+      summary: Get only question data for poll
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Question data for poll
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  question:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            option:
+                              type: string
+                              example: Фонтан
+                            option_index:
+                              type: integer
+                              example: 1
+                              description: The order of the option
+                          required:
+                            - option
+                            - option_index
+                    required:
+                      - title
+                      - options
+                required:
+                  - id
+                  - question
+        404:
+          description: Poll was not found
+          content: { }
+
+  /voter/poll/cast:
+    put:
+      tags:
+        - Voter part
+      summary: Cast a vote
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                option:
+                  type: string
+                  example: Фонтан
+                option_index:
+                  type: integer
+                  example: 1
+                  description: The order of the option
+              required:
+                - option
+                - option_index
+        required: true
+      responses:
+        200:
+          description: Cast token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: a9sd98ds7f5d65gsdg887gf8
+        404:
+          description: Poll was not found
           content: { }
