@@ -46,6 +46,45 @@ paths:
                     - emailsCount
 
   /admin/email-list:
+    get:
+      tags:
+        - Admin part
+      summary: Get email list
+      parameters:
+        - name: id
+          in: path
+          description: ID of email list
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Email list data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Двор Перамен
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: test@test.com
+                    description: Empty array if no emails
+                required:
+                  - id
+                  - title
+                  - emails
+        404:
+          description: Email list not found
+          content: { }
     post:
       tags:
         - Admin part
@@ -64,8 +103,10 @@ paths:
                   items:
                     type: string
                     example: test@test.com
+                  description: Empty array if no emails
               required:
                 - title
+                - emails
         required: true
       responses:
         201:
@@ -86,13 +127,28 @@ paths:
                     items:
                       type: string
                       example: test@test.com
+                    description: Empty array if no emails
                 required:
                   - id
                   - title
                   - emails
         422:
           description: Validation exception
-          content: { }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: array
+                    items:
+                      type: string
+                      example: The title field is required.
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
     put:
       tags:
         - Admin part
@@ -119,8 +175,10 @@ paths:
                   items:
                     type: string
                     example: test@test.com
+                  description: Empty array if no emails
               required:
                 - title
+                - emails
         required: true
       responses:
         201:
@@ -141,6 +199,7 @@ paths:
                     items:
                       type: string
                       example: test@test.com
+                    description: Empty array if no emails
                 required:
                   - id
                   - title
@@ -150,7 +209,21 @@ paths:
           content: { }
         422:
           description: Validation exception
-          content: { }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: array
+                    items:
+                      type: string
+                      example: The title field is required.
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
     delete:
       tags:
         - Admin part
