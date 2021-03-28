@@ -2,9 +2,11 @@
 
 Here you'll find an implementation of a meta-belarus voting registry implemented in PHP.
 
-## Run
+## Run 
 
-Just run `make up` and open the page `http://localhost`
+Run `make up` and open the page `http://localhost`
+
+Run `make down` to down all docker containers
 
 ## Data Modeling
 
