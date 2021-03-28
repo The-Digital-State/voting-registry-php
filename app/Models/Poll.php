@@ -1,64 +1,44 @@
 <?php
 
-
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-use Atk4\Data\Model;
-use Atk4\Data\Persistence;
-
-class Poll extends \Atk4\Data\Model
+class Poll extends Model
 {
-    public $table = 'poll';
-    public function __construct(Persistence $persistence = null)
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'polls';
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'question' => 'array',
+        'started_at' => 'datetime',
+        'ended_at' => 'datetime',
+        'published_at' => 'datetime',
+    ];
+
+    public function user(): BelongsTo
     {
-        parent::__construct($persistence);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    protected function init(): void
+    public function invitations(): HasMany
     {
-        parent::init();
-
-        $this->addField('publicUid');
-        $this->addField('status', ['enum'=>['DRAFT', 'LIVE']]);
-        $this->addField('title');
-        $this->addField('description');
-        $this->addField('timeStart', ['type'=>'datetime']);
-        $this->addField('timeEnd', ['type'=>'datetime']);
-        $this->addField('created', ['type'=>'datetime']);
-        $this->addField('updated', ['type'=>'datetime']);
-
-
-        // questions = [ { question: 'who', options: [ { option: 'john' } ] } ]
-        $this->containsMany('questions', [
-            'caption' => 'Poll Questions',
-            'model' => new Class extends Model {
-                public function init():void {
-                    parent::init();
-                    $this->addField('question');
-                    $this->containsMany('options', [
-                        'caption' => 'Available Options',
-                        'model' => new Class extends Model {
-                            public function init():void {
-                                parent::init();
-                                $this->addField('option');
-                            }
-                        }
-                    ]);
-                }
-            }
-        ]);
-
-        $this->containsMany('participantList', [
-            'caption' => 'Participant Links',
-            'model' => new Class extends Model {
-                public function init():void {
-                    parent::init();
-                    $this->hasOne('participant')
-                        ->addFields(['name']);
-                }
-            }
-        ]);
+        return $this->hasMany(Invitation::class, 'poll_id');
     }
 
+    public function results(): HasMany
+    {
+        return $this->hasMany(PollResult::class, 'poll_id');
+    }
 }
