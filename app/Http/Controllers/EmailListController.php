@@ -91,7 +91,6 @@ class EmailListController extends Controller
         return json_encode($result);
     }
 
-
     public function deleteList(int $id)
     {
         // ToDo: Get User After authorization
