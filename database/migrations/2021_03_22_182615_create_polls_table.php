@@ -11,11 +11,12 @@ class CreatePollsTable extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('polls', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->index();
+            $table->unsignedBigInteger('creator_id');
+            $table->foreign('creator_id')->references('id')->on('users');
             $table->unsignedBigInteger('emails_list_id')->nullable()->index();
             $table->string('title');
             $table->text('description')->nullable();
@@ -33,7 +34,7 @@ class CreatePollsTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('polls');
     }

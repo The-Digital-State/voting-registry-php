@@ -350,6 +350,7 @@ paths:
                       nullable: true
                     question:
                       type: object
+                      nullable: true
                       properties:
                         title:
                           type: string
@@ -359,14 +360,19 @@ paths:
                           items:
                             type: object
                             properties:
-                              option:
-                                type: string
-                                example: Фонтан
                               option_index:
                                 type: integer
                                 example: 1
                                 description: The order of the option
-                      nullable: true
+                              option:
+                                type: string
+                                example: Фонтан
+                            required:
+                              - option_index
+                              - option
+                      required:
+                        - title
+                        - options
                     emailListId:
                       type: integer
                       example: 99
@@ -380,7 +386,9 @@ paths:
                     - endDate
                     - question
                     - emailListId
-
+        404:
+          description: Poll wasn't found
+          content: { }
   /admin/poll/draft:
     post:
       tags:
@@ -399,20 +407,25 @@ paths:
                   type: string
                   maxLength: 1500
                   example: Полное описание. Здесь можно писать очень много букв
+                  nullable: true
                 shortDescription:
                   type: string
                   maxLength: 350
                   example: Краткое описание. Здесь можно писать чуть меньше букв
+                  nullable: true
                 startDate:
                   type: string
                   format: date-time
                   example: 2017-07-21T17:32:28Z
+                  nullable: true
                 endDate:
                   type: string
                   format: date-time
                   example: 2017-07-21T17:32:28Z
+                  nullable: true
                 question:
                   type: object
+                  nullable: true
                   properties:
                     title:
                       type: string
@@ -422,22 +435,35 @@ paths:
                       items:
                         type: object
                         properties:
-                          option:
-                            type: string
-                            example: Фонтан
                           option_index:
                             type: integer
                             example: 1
                             description: The order of the option
+                          option:
+                            type: string
+                            example: Фонтан
+                        required:
+                          - option_index
+                          - option
+                  required:
+                    - title
+                    - options
                 emailListId:
                   type: integer
                   example: 66
+                  nullable: true
               required:
                 - title
+                - description
+                - shortDescription
+                - startDate
+                - endDate
+                - question
+                - emailListId
         required: true
       responses:
         201:
-          description: "New poll was created"
+          description: New poll was created
           content:
             application/json:
               schema:
@@ -481,22 +507,23 @@ paths:
                         items:
                           type: object
                           properties:
-                            option:
-                              type: string
-                              example: Фонтан
                             option_index:
                               type: integer
                               example: 1
                               description: The order of the option
+                            option:
+                              type: string
+                              example: Фонтан
+                          required:
+                            - option_index
+                            - option
+                    required:
+                      - title
+                      - options
                   emailListId:
                     type: integer
                     example: 66
                     nullable: true
-                  status:
-                    type: string
-                    example: draft
-                    enum:
-                      - draft
                 required:
                   - id
                   - title
@@ -506,10 +533,33 @@ paths:
                   - endDate
                   - question
                   - emailListId
-                  - status
         422:
           description: Validation exception
-          content: { }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: array
+                    items:
+                      type: string
+                      example: The title field is required.
+                  description:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  shortDescription:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  question.options:
+                    type: array
+                    items:
+                      type: string
+                      example: The question.options must be at least 2 characters.
     put:
       tags:
         - Admin part
@@ -535,20 +585,25 @@ paths:
                   type: string
                   maxLength: 1500
                   example: Полное описание. Здесь можно писать очень много букв
+                  nullable: true
                 shortDescription:
                   type: string
                   maxLength: 350
                   example: Краткое описание. Здесь можно писать чуть меньше букв
+                  nullable: true
                 startDate:
                   type: string
                   format: date-time
                   example: 2017-07-21T17:32:28Z
+                  nullable: true
                 endDate:
                   type: string
                   format: date-time
                   example: 2017-07-21T17:32:28Z
+                  nullable: true
                 question:
                   type: object
+                  nullable: true
                   properties:
                     title:
                       type: string
@@ -558,22 +613,36 @@ paths:
                       items:
                         type: object
                         properties:
-                          option:
-                            type: string
-                            example: Фонтан
                           option_index:
                             type: integer
                             example: 1
                             description: The order of the option
+                          option:
+                            type: string
+                            example: Фонтан
+                        required:
+                          - option_index
+                          - option
+                  required:
+                    - title
+                    - options
                 emailListId:
                   type: integer
                   example: 66
+                  nullable: true
               required:
+                - id
                 - title
+                - description
+                - shortDescription
+                - startDate
+                - endDate
+                - question
+                - emailListId
         required: true
       responses:
         201:
-          description: "The poll was updated"
+          description: The poll was updated
           content:
             application/json:
               schema:
@@ -617,22 +686,23 @@ paths:
                         items:
                           type: object
                           properties:
-                            option:
-                              type: string
-                              example: Фонтан
                             option_index:
                               type: integer
                               example: 1
                               description: The order of the option
+                            option:
+                              type: string
+                              example: Фонтан
+                          required:
+                            - option_index
+                            - option
+                    required:
+                      - title
+                      - options
                   emailListId:
                     type: integer
                     example: 66
                     nullable: true
-                  status:
-                    type: string
-                    example: draft
-                    enum:
-                      - draft
                 required:
                   - id
                   - title
@@ -642,9 +712,54 @@ paths:
                   - endDate
                   - question
                   - emailListId
-                  - status
+        404:
+          description: Poll wasn't found
+          content: { }
         422:
           description: Validation exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: array
+                    items:
+                      type: string
+                      example: The title field is required.
+                  description:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  shortDescription:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  question.options:
+                    type: array
+                    items:
+                      type: string
+                      example: The question.options must be at least 2 characters.
+    delete:
+      tags:
+        - Admin part
+      summary: Delete draft poll
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Poll was deleted
+          content: { }
+        404:
+          description: Poll wasn't found
           content: { }
 
   /admin/poll/publish:
@@ -677,6 +792,7 @@ paths:
                   type: string
                   maxLength: 350
                   example: Краткое описание. Здесь можно писать чуть меньше букв
+                  nullable: true
                 startDate:
                   type: string
                   format: date-time
@@ -696,19 +812,26 @@ paths:
                       items:
                         type: object
                         properties:
-                          option:
-                            type: string
-                            example: Фонтан
                           option_index:
                             type: integer
                             example: 1
                             description: The order of the option
+                          option:
+                            type: string
+                            example: Фонтан
+                        required:
+                          - option_index
+                          - option
+                  required:
+                    - title
+                    - options
                 emailListId:
                   type: integer
                   example: 66
               required:
                 - title
                 - description
+                - shortDescription
                 - startDate
                 - endDate
                 - question
@@ -716,7 +839,7 @@ paths:
         required: true
       responses:
         201:
-          description: "New poll was created"
+          description: Poll was published
           content:
             application/json:
               schema:
@@ -756,24 +879,25 @@ paths:
                         items:
                           type: object
                           properties:
-                            option:
-                              type: string
-                              example: Фонтан
                             option_index:
                               type: integer
                               example: 1
                               description: The order of the option
+                            option:
+                              type: string
+                              example: Фонтан
+                          required:
+                            - option_index
+                            - option
+                    required:
+                      - title
+                      - options
                   emailListId:
                     type: integer
                     example: 66
                   previewLink:
                     type: string
                     example: albo.vote/preview/1
-                  status:
-                    type: string
-                    example: published
-                    enum:
-                      - published
                 required:
                   - id
                   - title
@@ -784,10 +908,56 @@ paths:
                   - question
                   - emailListId
                   - previewLink
-                  - status
+        404:
+          description: Poll wasn't found
+          content: { }
         422:
           description: Validation exception
-          content: { }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: array
+                    items:
+                      type: string
+                      example: The title field is required.
+                  description:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  shortDescription:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  startDate:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  endDate:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  question:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  question.options:
+                    type: array
+                    items:
+                      type: string
+                      example: The question.options must be at least 2 characters.
+                  emailListId:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
 
   /voter/poll/preview:
     get:
