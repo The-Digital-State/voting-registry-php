@@ -18,6 +18,15 @@ class Poll extends Model
      */
     protected $table = 'polls';
 
+    protected $fillable = [
+        'title',
+        'description',
+        'short_description',
+        'question',
+        'emails_list_id',
+        'creator_id'
+    ];
+
     /**
      * The attributes that should be cast to native types.
      *
@@ -28,11 +37,12 @@ class Poll extends Model
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
         'published_at' => 'datetime',
+//        'emailsList' => EmailsList::class,
     ];
 
-    public function user(): BelongsTo
+    public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
     public function emailsList(): BelongsTo

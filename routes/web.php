@@ -28,3 +28,11 @@ $router->get('/admin/email-list/{id:[0-9]+}', 'EmailListController@getList');
 $router->post('/admin/email-list', 'EmailListController@createNewList');
 $router->put('/admin/email-list/{id:[0-9]+}', 'EmailListController@updateList');
 $router->delete('/admin/email-list/{id:[0-9]+}', 'EmailListController@deleteList');
+
+$router->get('/admin/polls', 'PollsController@getAllPolls');
+$router->get('/admin/poll/{id:[0-9]+}', 'PollsController@getPoll');
+$router->post('/admin/poll/draft', 'PollsController@createDraftPoll');
+$router->put('/admin/poll/draft/{id:[0-9]+}', 'PollsController@updateDraftPoll');
+$router->delete('/admin/poll/draft/{id:[0-9]+}', 'PollsController@deleteDraftPoll');
+$router->put('/admin/poll/publish/{id:[0-9]+}', 'PollsController@publishPoll');
+

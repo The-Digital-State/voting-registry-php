@@ -37,11 +37,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public function polls(): HasMany
     {
-        return $this->hasMany(Poll::class, 'user_id');
+        return $this->hasMany(Poll::class, 'creator_id');
     }
 
     public function emailsLists(): HasMany
     {
-        return $this->hasMany(EmailsList::class, 'user_id');
+        return $this->hasMany(EmailsList::class, 'owner_id');
     }
 }

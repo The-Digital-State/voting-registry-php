@@ -11,13 +11,22 @@ class PollFactory extends Factory
 
     public function definition(): array
     {
+        $options = [];
+        $optionsCount = random_int(3, 6);
+        for($i = 1; $i < $optionsCount; $i++){
+            $options[] = [
+                'option_index' => $i,
+                'option' => $this->faker->word(),
+            ];
+        }
+
         return [
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph(8, true),
             'short_description' => $this->faker->paragraph(3, true),
             'question' => [
-                'question' => $this->faker->sentence . '?',
-                'options' => $this->faker->sentences(rand(2, 6)),
+                'title' => $this->faker->sentence . '?',
+                'options' => $options
             ],
         ];
     }
