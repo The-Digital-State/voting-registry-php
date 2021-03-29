@@ -15,7 +15,8 @@ class CreateEmailsListsTable extends Migration
     {
         Schema::create('emails_lists', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('owner_id');
+            $table->foreign('owner_id')->references('id')->on('users');
             $table->string('title');
             $table->json('emails')->nullable();
             $table->timestamps();

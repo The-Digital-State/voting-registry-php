@@ -23,7 +23,8 @@ $router->get('hello', function (){
    return 'Hello world';
 });
 
-$router->get('poll', 'Polls@list');
-$router->get('migrate', 'Migrator@migrate');
-
-
+$router->get('/admin/email-lists', 'EmailListController@getAllLists');
+$router->get('/admin/email-list/{id:[0-9]+}', 'EmailListController@getList');
+$router->post('/admin/email-list', 'EmailListController@createNewList');
+$router->put('/admin/email-list/{id:[0-9]+}', 'EmailListController@updateList');
+$router->delete('/admin/email-list/{id:[0-9]+}', 'EmailListController@deleteList');
