@@ -8,8 +8,8 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('hello', function (){
-   return 'Hello world';
+$router->get('hello', function () {
+    return 'Hello world';
 });
 
 $router->get('/email-lists', 'EmailListController@getAllLists');
@@ -28,8 +28,17 @@ $router->put('/poll/publish/{id:[0-9]+}', 'PollsController@publishPoll');
 
 $router->post('/voter/poll/cast/{id:[0-9]+}', 'VoterController@castVote');
 
-$router->get('auth/jwt/{invitationToken:[0-9a-zA-Z]{32}}', 'AuthController@getJwt');
-$router->post('auth/jwt/logout', [
-    'middleware' => 'auth',
-    'uses' => 'AuthController@logoutJwt'
-]);
+// Auth
+$router->group(['prefix' => 'auth'], function () use ($router) {
+    // Invitation
+    $router->get('jwt/{invitationToken:[0-9a-zA-Z]{32}}', 'AuthController@getJwt');
+
+    // Azure
+    $router->post('azure', 'AuthController@loginByAzure');
+
+    // Logout
+    $router->post('jwt/logout', [
+        'middleware' => 'auth',
+        'uses' => 'AuthController@logoutJwt'
+    ]);
+});
