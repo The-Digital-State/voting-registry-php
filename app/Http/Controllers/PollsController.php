@@ -48,6 +48,7 @@ class PollsController extends Controller
         $result['endDate'] = $poll->ended_at;
         $result['question'] = $poll->question;
         $result['emailListId'] = $poll->emails_list_id;
+        $result['status'] = null;
 
         return json_encode($result);
     }
