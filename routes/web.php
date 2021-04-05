@@ -8,10 +8,6 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('hello', function () {
-    return 'Hello world';
-});
-
 $router->get('/email-lists', 'EmailListController@getAllLists');
 $router->get('/email-list/{id:[0-9]+}', 'EmailListController@getList');
 $router->post('/email-list', 'EmailListController@createNewList');
