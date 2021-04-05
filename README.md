@@ -1,26 +1,16 @@
-# Voting PHP Registry
-
-Here you'll find an implementation of a meta-belarus voting registry implemented in PHP.
-
-## Run 
-
 Run `make up` and open the page `http://localhost`
 
 Run `make down` to down all docker containers
 
-## Data Modeling
+Run `make exec` to run shell in container
 
-We're using atk4/data (https://github.com/atk4/data, https://agile-data.readthedocs.io/en/develop/index.html),
-to simplify database interaction. You can easily define 'Models' inside 'app/Models' folder. Simply duplicate
-existing file and adopt.
+### inside php container
 
-After you have added a new model, update Http/Controllers/Migrator and invoke /migrate endpoint. This will
-create table in MySQL.
+Run `php artisan migrate:fresh` to drop all tables and run all migrations
 
-## Attaching API endpoints
+Run `php artisan db:seed` to seed the database with records
 
+## Specs OPEN API
 
-## Specs
-
-Swagger: `/specs/swagger/index.html`  
-Redoc: `/specs/redoc/index.html`
+Swagger: `http://localhost/specs/swagger/index.html`  
+Redoc: `http://localhost/specs/redoc/index.html`

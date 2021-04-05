@@ -10,10 +10,10 @@ class EmailListController extends Controller
 {
     public function getAllLists()
     {
-        // ToDo: Get User After authorization
-        $ownerId = 1;
+        /** @var Models\User $owner */
+        $owner = auth()->user();
 
-        $emailLists = Models\EmailsList::where('owner_id', $ownerId)->get();
+        $emailLists = Models\EmailsList::where('owner_id', $owner->id)->get();
 
         $result = [];
         foreach ($emailLists as $emailList) {

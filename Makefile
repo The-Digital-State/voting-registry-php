@@ -18,6 +18,9 @@ build::
 up::
 	docker-compose up --detach --force-recreate
 
+exec::
+	docker-compose exec -u root php bash
+
 down::
 	docker-compose down
 

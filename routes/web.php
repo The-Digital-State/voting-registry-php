@@ -4,17 +4,6 @@ use Laravel\Lumen\Routing\Router;
 
 /** @var Router $router */
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It is a breeze. Simply tell Lumen the URIs it should respond to
-| and give it the Closure to call when that URI is requested.
-|
-*/
-
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
@@ -36,4 +25,11 @@ $router->put('/poll/draft/{id:[0-9]+}', 'PollsController@updateDraftPoll');
 $router->delete('/poll/draft/{id:[0-9]+}', 'PollsController@deleteDraftPoll');
 $router->put('/poll/publish/{id:[0-9]+}', 'PollsController@publishPoll');
 
+
 $router->post('/voter/poll/cast/{id:[0-9]+}', 'VoterController@castVote');
+
+$router->get('auth/jwt/{invitationToken:[0-9a-zA-Z]{32}}', 'AuthController@getJwt');
+$router->post('auth/jwt/logout', [
+    'middleware' => 'auth',
+    'uses' => 'AuthController@logoutJwt'
+]);
