@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models;
 use Illuminate\Http\Request;
+use Laravel\Lumen\Routing\Controller;
 
 class EmailListController extends Controller
 {
