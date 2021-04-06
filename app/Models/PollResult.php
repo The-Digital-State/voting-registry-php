@@ -14,12 +14,14 @@ class PollResult extends Model
      */
     protected $table = 'polls_results';
 
-    /**
-     * The primary key for the model.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'token';
+    public $timestamps = false;
+
+    protected $fillable = [
+        'token',
+        'poll_id',
+        'choice',
+        'choice_index',
+    ];
 
     public function poll(): BelongsTo
     {

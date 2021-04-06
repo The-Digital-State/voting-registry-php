@@ -421,7 +421,7 @@ paths:
                       items:
                         type: object
                         properties:
-                          option_index:
+                          optionIndex:
                             type: integer
                             example: 1
                             description: The order of the option
@@ -429,7 +429,7 @@ paths:
                             type: string
                             example: Фонтан
                         required:
-                          - option_index
+                          - optionIndex
                           - option
                   required:
                     - title
@@ -493,7 +493,7 @@ paths:
                         items:
                           type: object
                           properties:
-                            option_index:
+                            optionIndex:
                               type: integer
                               example: 1
                               description: The order of the option
@@ -501,7 +501,7 @@ paths:
                               type: string
                               example: Фонтан
                           required:
-                            - option_index
+                            - optionIndex
                             - option
                     required:
                       - title
@@ -597,7 +597,7 @@ paths:
                       items:
                         type: object
                         properties:
-                          option_index:
+                          optionIndex:
                             type: integer
                             example: 1
                             description: The order of the option
@@ -605,7 +605,7 @@ paths:
                             type: string
                             example: Фонтан
                         required:
-                          - option_index
+                          - optionIndex
                           - option
                   required:
                     - title
@@ -670,7 +670,7 @@ paths:
                         items:
                           type: object
                           properties:
-                            option_index:
+                            optionIndex:
                               type: integer
                               example: 1
                               description: The order of the option
@@ -678,7 +678,7 @@ paths:
                               type: string
                               example: Фонтан
                           required:
-                            - option_index
+                            - optionIndex
                             - option
                     required:
                       - title
@@ -792,7 +792,7 @@ paths:
                       items:
                         type: object
                         properties:
-                          option_index:
+                          optionIndex:
                             type: integer
                             example: 1
                             description: The order of the option
@@ -800,7 +800,7 @@ paths:
                             type: string
                             example: Фонтан
                         required:
-                          - option_index
+                          - optionIndex
                           - option
                   required:
                     - title
@@ -859,7 +859,7 @@ paths:
                         items:
                           type: object
                           properties:
-                            option_index:
+                            optionIndex:
                               type: integer
                               example: 1
                               description: The order of the option
@@ -867,7 +867,7 @@ paths:
                               type: string
                               example: Фонтан
                           required:
-                            - option_index
+                            - optionIndex
                             - option
                     required:
                       - title
@@ -982,7 +982,7 @@ paths:
                             option:
                               type: string
                               example: Фонтан
-                            option_index:
+                            optionIndex:
                               type: integer
                               example: 1
                               description: The order of the option
@@ -994,7 +994,7 @@ paths:
                               example: 67
                           required:
                             - option
-                            - option_index
+                            - optionIndex
                             - count
                             - percentage
                         nullable: true
@@ -1043,7 +1043,7 @@ paths:
                         option:
                           type: string
                           example: Фонтан
-                        option_index:
+                        optionIndex:
                           type: integer
                           example: 1
                           description: The order of the option
@@ -1051,7 +1051,7 @@ paths:
                         - id
                         - token
                         - option
-                        - option_index
+                        - optionIndex
                     nullable: true
                 required:
                   - id
@@ -1086,16 +1086,16 @@ paths:
                 option:
                   type: string
                   example: Фонтан
-                option_index:
+                optionIndex:
                   type: integer
                   example: 1
                   description: The order of the option
               required:
                 - option
-                - option_index
+                - optionIndex
         required: true
       responses:
-        200:
+        201:
           description: Cast token
           content:
             application/json:
@@ -1108,3 +1108,20 @@ paths:
         404:
           description: Poll was not found
           content: { }
+        422:
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  option:
+                    type: array
+                    items:
+                      type: string
+                      example: The option field is required.
+                  optionIndex:
+                    type: array
+                    items:
+                      type: string
+                      example: The optionIndex field is required.

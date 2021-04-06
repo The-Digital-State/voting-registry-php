@@ -14,8 +14,10 @@ class CreatePollsResultsTable extends Migration
     public function up()
     {
         Schema::create('polls_results', function (Blueprint $table) {
-            $table->string('token')->primary();
-            $table->unsignedBigInteger('poll_id')->index();
+            $table->id();
+            $table->string('token');
+            $table->unsignedBigInteger('poll_id');
+            $table->foreign('poll_id')->references('id')->on('polls');
             $table->text('choice');
             $table->integer('choice_index');
         });
