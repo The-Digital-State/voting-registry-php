@@ -14,8 +14,11 @@ class CreateInvitationsTable extends Migration
     public function up()
     {
         Schema::create('invitations', function (Blueprint $table) {
-            $table->string('token')->primary();
+            $table->id();
+            $table->string('token');
             $table->string('email');
+            $table->unsignedBigInteger('poll_id');
+            $table->foreign('poll_id')->references('id')->on('polls');
             $table->timestamp('voted_at')->nullable();
         });
     }

@@ -35,3 +35,5 @@ $router->post('/poll/draft', 'PollsController@createDraftPoll');
 $router->put('/poll/draft/{id:[0-9]+}', 'PollsController@updateDraftPoll');
 $router->delete('/poll/draft/{id:[0-9]+}', 'PollsController@deleteDraftPoll');
 $router->put('/poll/publish/{id:[0-9]+}', 'PollsController@publishPoll');
+
+$router->post('/voter/poll/cast/{id:[0-9]+}', 'VoterController@castVote');

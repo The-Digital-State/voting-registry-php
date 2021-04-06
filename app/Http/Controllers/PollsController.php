@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models;
 use Illuminate\Http\Request;
+use Laravel\Lumen\Routing\Controller;
 
 class PollsController extends Controller
 {
@@ -174,6 +175,8 @@ class PollsController extends Controller
         $poll->emails_list_id = $request->emailListId; //ToDo: check the ownership of this list
         $poll->published_at = new \DateTime();
         $poll->save();
+
+        // ToDo: Send emails with access token
 
         $result['id'] = $poll->id;
         $result['title'] = $poll->title;
