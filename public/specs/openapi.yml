@@ -8,18 +8,9 @@ servers:
   - url: http://localhost:80
     description: Local server
 
-tags:
-  - name: Admin part
-    description: Everything about admin part
-  - name: Voter part
-    description: Everything about voter part
-
-
 paths:
-  /admin/email-lists:
+  /email-lists:
     get:
-      tags:
-        - Admin part
       summary: Get all email lists
       responses:
         200:
@@ -45,10 +36,8 @@ paths:
                     - title
                     - emailsCount
 
-  /admin/email-list:
+  /email-list:
     get:
-      tags:
-        - Admin part
       summary: Get email list
       parameters:
         - name: id
@@ -86,8 +75,6 @@ paths:
           description: Email list not found
           content: { }
     post:
-      tags:
-        - Admin part
       summary: Create a new email list
       requestBody:
         content:
@@ -150,8 +137,6 @@ paths:
                       type: string
                       example: The emails field is required.
     put:
-      tags:
-        - Admin part
       summary: Update an existing creator email list
       parameters:
         - name: id
@@ -225,8 +210,6 @@ paths:
                       type: string
                       example: The emails field is required.
     delete:
-      tags:
-        - Admin part
       summary: Delete email list
       parameters:
         - name: id
@@ -244,10 +227,8 @@ paths:
           description: Email list not found
           content: { }
 
-  /admin/polls:
+  /polls:
     get:
-      tags:
-        - Admin part
       summary: Get all polls
       responses:
         200:
@@ -279,10 +260,6 @@ paths:
                       type: string
                       example: Двор Перамен
                       nullable: true
-                    previewLink:
-                      type: string
-                      example: albo.vote/preview/1
-                      nullable: true
                     status:
                       type: string
                       example: draft
@@ -291,18 +268,16 @@ paths:
                         - published
                         - active
                         - finished
+                        - closed
                   required:
                     - id
                     - title
                     - startDate
                     - endDate
                     - emailListTitle
-                    - previewLink
                     - status
-  /admin/poll:
+  /poll:
     get:
-      tags:
-        - Admin part
       summary: Get poll data
       parameters:
         - name: id
@@ -318,81 +293,92 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      example: 99
-                    title:
-                      type: string
-                      example: Что поставить во Дворе Перамен
-                    description:
-                      type: string
-                      maxLength: 1500
-                      example: Полное описание. Здесь можно писать очень много букв
-                      nullable: true
-                    shortDescription:
-                      type: string
-                      maxLength: 350
-                      example: Краткое описание. Здесь можно писать чуть меньше букв
-                      nullable: true
-                    startDate:
-                      type: string
-                      format: date-time
-                      example: 2017-07-21T17:32:28Z
-                      nullable: true
-                    endDate:
-                      type: string
-                      format: date-time
-                      example: 2017-07-21T17:32:28Z
-                      nullable: true
-                    question:
-                      type: object
-                      nullable: true
-                      properties:
-                        title:
-                          type: string
-                          example: Что поставить?
-                        options:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              option_index:
-                                type: integer
-                                example: 1
-                                description: The order of the option
-                              option:
-                                type: string
-                                example: Фонтан
-                            required:
-                              - option_index
-                              - option
-                      required:
-                        - title
-                        - options
-                    emailListId:
-                      type: integer
-                      example: 99
-                      nullable: true
-                  required:
-                    - id
-                    - title
-                    - description
-                    - shortDescription
-                    - startDate
-                    - endDate
-                    - question
-                    - emailListId
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  description:
+                    type: string
+                    maxLength: 1500
+                    example: Полное описание. Здесь можно писать очень много букв
+                    nullable: true
+                  shortDescription:
+                    type: string
+                    maxLength: 350
+                    example: Краткое описание. Здесь можно писать чуть меньше букв
+                    nullable: true
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                    nullable: true
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                    nullable: true
+                  question:
+                    type: object
+                    nullable: true
+                    properties:
+                      title:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            option:
+                              type: string
+                              example: Фонтан
+                            option_index:
+                              type: integer
+                              example: 1
+                              description: The order of the option
+                            percentage:
+                              type: integer
+                              example: 56
+                              nullable: true
+                          required:
+                            - option
+                            - option_index
+                            - percentage
+                    required:
+                      - title
+                      - options
+                  emailListId:
+                    type: integer
+                    example: 99
+                    nullable: true
+                  status:
+                    type: string
+                    example: published
+                    enum:
+                      - draft
+                      - published
+                      - active
+                      - finished
+                      - closed
+                required:
+                  - id
+                  - title
+                  - description
+                  - shortDescription
+                  - startDate
+                  - endDate
+                  - question
+                  - emailListId
+                  - status
         404:
           description: Poll wasn't found
           content: { }
-  /admin/poll/draft:
+  /poll/draft:
     post:
-      tags:
-        - Admin part
       summary: Create a new draft poll
       requestBody:
         content:
@@ -561,8 +547,6 @@ paths:
                       type: string
                       example: The question.options must be at least 2 characters.
     put:
-      tags:
-        - Admin part
       summary: Update an existing draft poll
       parameters:
         - name: id
@@ -743,8 +727,6 @@ paths:
                       type: string
                       example: The question.options must be at least 2 characters.
     delete:
-      tags:
-        - Admin part
       summary: Delete draft poll
       parameters:
         - name: id
@@ -762,10 +744,8 @@ paths:
           description: Poll wasn't found
           content: { }
 
-  /admin/poll/publish:
+  /poll/publish:
     put:
-      tags:
-        - Admin part
       summary: Publish a poll
       parameters:
         - name: id
@@ -895,9 +875,6 @@ paths:
                   emailListId:
                     type: integer
                     example: 66
-                  previewLink:
-                    type: string
-                    example: albo.vote/preview/1
                 required:
                   - id
                   - title
@@ -907,7 +884,6 @@ paths:
                   - endDate
                   - question
                   - emailListId
-                  - previewLink
         404:
           description: Poll wasn't found
           content: { }
@@ -959,113 +935,8 @@ paths:
                       type: string
                       example: The emails field is required.
 
-  /voter/poll/preview:
+  /poll/result:
     get:
-      tags:
-        - Voter part
-      summary: Get published poll data for preview
-      parameters:
-        - name: id
-          in: path
-          description: ID of a published poll
-          required: true
-          schema:
-            type: integer
-            example: 99
-      responses:
-        200:
-          description: Published poll data for preview
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 99
-                  title:
-                    type: string
-                    example: Что поставить во Дворе Перамен
-                  description:
-                    type: string
-                    maxLength: 1500
-                    example: Полное описание. Здесь можно писать очень много букв
-                  startDate:
-                    type: string
-                    format: date-time
-                    example: 2017-07-21T17:32:28Z
-                  endDate:
-                    type: string
-                    format: date-time
-                    example: 2017-07-21T17:32:28Z
-                  question:
-                    type: object
-                    properties:
-                      title:
-                        type: string
-                        example: Что поставить?
-                      options:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            option:
-                              type: string
-                              example: Фонтан
-                            option_index:
-                              type: integer
-                              example: 1
-                              description: The order of the option
-                            percentage:
-                              type: integer
-                              example: 56
-                              nullable: true
-                          required:
-                            - option
-                            - option_index
-                            - percentage
-                    required:
-                      - title
-                      - options
-                  status:
-                    type: string
-                    example: published
-                    enum:
-                      - published
-                      - active
-                      - finished
-                      - closed
-                  stats:
-                    type: object
-                    properties:
-                      voted:
-                        type: integer
-                        example: 100
-                        description: How many people casted a vote
-                        nullable: true
-                    required:
-                      - voted
-                  previewLink:
-                    type: string
-                    example: albo.vote/preview/1
-                required:
-                  - id
-                  - title
-                  - description
-                  - startDate
-                  - endDate
-                  - question
-                  - status
-                  - stats
-                  - previewLink
-        404:
-          description: Published poll wasn't found
-          content: { }
-
-  /voter/poll/result:
-    get:
-      tags:
-        - Voter part
       summary: Get all poll data for result
       parameters:
         - name: id
@@ -1182,9 +1053,6 @@ paths:
                         - option
                         - option_index
                     nullable: true
-                  previewLink:
-                    type: string
-                    example: albo.vote/preview/1
                 required:
                   - id
                   - title
@@ -1194,70 +1062,12 @@ paths:
                   - status
                   - stats
                   - results
-                  - previewLink
         404:
           description: Poll was not found
           content: { }
 
-  /voter/poll/question:
-    get:
-      tags:
-        - Voter part
-      summary: Get only question data for poll
-      parameters:
-        - name: id
-          in: path
-          description: ID of a poll
-          required: true
-          schema:
-            type: integer
-            example: 99
-      responses:
-        200:
-          description: Question data for poll
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 99
-                  question:
-                    type: object
-                    properties:
-                      title:
-                        type: string
-                        example: Что поставить?
-                      options:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            option:
-                              type: string
-                              example: Фонтан
-                            option_index:
-                              type: integer
-                              example: 1
-                              description: The order of the option
-                          required:
-                            - option
-                            - option_index
-                    required:
-                      - title
-                      - options
-                required:
-                  - id
-                  - question
-        404:
-          description: Poll was not found
-          content: { }
-
-  /voter/poll/cast:
+  /poll/cast:
     put:
-      tags:
-        - Voter part
       summary: Cast a vote
       parameters:
         - name: id
