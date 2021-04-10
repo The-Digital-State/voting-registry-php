@@ -4,25 +4,27 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use App\Models;
+use App\Models\User;
+use App\Models\Invitation;
+use Laravel\Lumen\Routing\Controller;
 
 class AuthController extends Controller
 {
     public function getJwt(string $invitationToken): JsonResponse
     {
-        $invitation = Models\Invitation::where('token', $invitationToken)->first();
+        $invitation = Invitation::where('token', $invitationToken)->first();
         if (!$invitation) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $user = Models\User::where('email', $invitation->email)->firstOr(function () use ($invitation) {
-            return Models\User::create([
+        $user = User::where('email', $invitation->email)->firstOr(function () use ($invitation) {
+            return User::create([
                 'email' => $invitation->email,
                 'active' => true,
             ]);
         });
 
-        $jwtAccessToken = Auth::login($user);
+        $jwtAccessToken = Auth::claims(['available_poll_id' => $invitation->poll_id])->login($user);
 
         return response()->json([
             'token' => $jwtAccessToken,
