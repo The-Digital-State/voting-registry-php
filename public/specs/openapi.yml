@@ -9,6 +9,53 @@ servers:
     description: Local server
 
 paths:
+  /auth/jwt:
+    get:
+      security: []
+      parameters:
+        - name: token
+          in: path
+          description: Invitation token for poll
+          required: true
+          schema:
+            type: string
+            example: eb9e50eafcfbd4cf4be87561ca681726
+      summary: Get JWT token
+      responses:
+        200:
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjFcL2F1dGhcL2p3dFwvZWI5ZTUwZWFmY2ZiZDRjZjRiZTg3NTYxY2E2ODE3MjYiLCJpYXQiOjE2MTgwODY1NjYsImV4cCI6MTYxODA5MDE2NiwibmJmIjoxNjE4MDg2NTY2LCJqdGkiOiI0OXFHYU1LamR5NTBudXIzIiwic3ViIjoxMSwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyIsImF2YWlsYWJsZV9wb2xsX2lkIjoxOH0.fIiH5tVZURIlCxt0MHsdjCVWGW7gMUTRqGMMTtO2RE8
+                  token_type:
+                    type: string
+                    example: bearer
+                  expires_in:
+                    description: Expire after 3600 seconds
+                    type: integer
+                    example: 3600
+                required:
+                  - token
+                  - token_type
+                  - expires_in
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/jwt/invalidate:
+    put:
+      summary: Invalidate JWT token
+      responses:
+        200:
+          description: JWT token was invalidated
+          content: { }
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
   /email-lists:
     get:
       summary: Get all email lists
@@ -35,6 +82,8 @@ paths:
                     - id
                     - title
                     - emailsCount
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
 
   /email-list:
     get:
@@ -71,6 +120,8 @@ paths:
                   - id
                   - title
                   - emails
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Email list not found
           content: { }
@@ -119,6 +170,8 @@ paths:
                   - id
                   - title
                   - emails
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         422:
           description: Validation exception
           content:
@@ -189,6 +242,8 @@ paths:
                   - id
                   - title
                   - emails
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Email list not found
           content: { }
@@ -223,6 +278,8 @@ paths:
         200:
           description: Email list was deleted
           content: { }
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Email list not found
           content: { }
@@ -276,6 +333,8 @@ paths:
                     - endDate
                     - emailListTitle
                     - status
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
   /poll:
     get:
       summary: Get poll data
@@ -519,6 +578,8 @@ paths:
                   - endDate
                   - question
                   - emailListId
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         422:
           description: Validation exception
           content:
@@ -696,6 +757,8 @@ paths:
                   - endDate
                   - question
                   - emailListId
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Poll wasn't found
           content: { }
@@ -740,6 +803,8 @@ paths:
         200:
           description: Poll was deleted
           content: { }
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Poll wasn't found
           content: { }
@@ -884,6 +949,8 @@ paths:
                   - endDate
                   - question
                   - emailListId
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Poll wasn't found
           content: { }
@@ -1105,6 +1172,8 @@ paths:
                   token:
                     type: string
                     example: a9sd98ds7f5d65gsdg887gf8
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Poll was not found
           content: { }
@@ -1125,3 +1194,22 @@ paths:
                     items:
                       type: string
                       example: The optionIndex field is required.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: JWT token is missing or invalid
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Unauthorized.
+
+security:
+  - bearerAuth: []
