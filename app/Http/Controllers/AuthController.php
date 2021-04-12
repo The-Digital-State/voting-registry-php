@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Invitation;
 use Illuminate\Support\Facades\Http;
-use Laravel\Lumen\Routing\Controller;
 
 class AuthController extends Controller
 {
