@@ -1,7 +1,6 @@
 <?php
 
 use Laravel\Lumen\Routing\Router;
-use Laravel\Socialite\Facades\Socialite;
 
 /** @var Router $router */
 
