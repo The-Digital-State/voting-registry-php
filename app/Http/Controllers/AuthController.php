@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Invitation;
-use Laravel\Lumen\Routing\Controller;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -38,5 +39,40 @@ class AuthController extends Controller
         Auth::invalidate();
 
         return response('');
+    }
+
+    public function loginByAzure(Request $request): JsonResponse
+    {
+        $this->validate($request, [
+            'access_token' => 'required',
+        ]);
+
+        try {
+            $response = Http::withToken($request->input('access_token'))
+                ->withHeaders(['Content-Type' => 'application/json'])
+                ->get('https://graph.microsoft.com/v1.0/me');
+
+            $response->throw();
+
+            $profile = $response->json();
+
+            $user = User::where('email', $profile['userPrincipalName'])
+                ->firstOr(function () use ($profile) {
+                    return User::create([
+                        'email' => $profile['userPrincipalName'],
+                        'active' => true,
+                    ]);
+                });
+
+            $jwtAccessToken = Auth::login($user);
+
+            return response()->json([
+                'token' => $jwtAccessToken,
+                'token_type' => 'bearer',
+                'expires_in' => Auth::factory()->getTTL() * 60
+            ]);
+        } catch (\Exception $exception) {
+            return response()->json(['message' => $exception->getMessage()], 401);
+        }
     }
 }
