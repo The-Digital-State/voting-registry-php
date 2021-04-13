@@ -4,15 +4,18 @@ use Laravel\Lumen\Routing\Router;
 
 /** @var Router $router */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+$router->get('/health-check', function () {
+    return 'OK';
 });
 
-$router->get('/email-lists', 'EmailListController@getAllLists');
-$router->get('/email-list/{id:[0-9]+}', 'EmailListController@getList');
-$router->post('/email-list', 'EmailListController@createNewList');
-$router->put('/email-list/{id:[0-9]+}', 'EmailListController@updateList');
-$router->delete('/email-list/{id:[0-9]+}', 'EmailListController@deleteList');
+$router->group(['middleware' => 'auth'], function () use ($router) {
+    $router->put('/auth/jwt/invalidate', 'AuthController@invalidateJwt');
+    $router->get('/email-lists', 'EmailListController@getAllLists');
+    $router->get('/email-list/{id:[0-9]+}', 'EmailListController@getList');
+    $router->post('/email-list', 'EmailListController@createNewList');
+    $router->put('/email-list/{id:[0-9]+}', 'EmailListController@updateList');
+    $router->delete('/email-list/{id:[0-9]+}', 'EmailListController@deleteList');
+});
 
 $router->get('/polls', 'PollsController@getAllPolls');
 $router->get('/poll/{id:[0-9]+}', 'PollsController@getPoll');

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EmailsListFactory extends Factory
 {
-    protected $model = Emailslist::class;
+    protected $model = EmailsList::class;
 
     public function definition(): array
     {

@@ -34,9 +34,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logoutJwt()
+    public function invalidateJwt()
     {
-        auth()->invalidate();
+        Auth::invalidate();
 
         return response('');
     }
