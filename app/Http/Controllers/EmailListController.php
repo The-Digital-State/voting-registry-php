@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models;
+use App\Models\EmailsList;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Lumen\Routing\Controller;
 
 class EmailListController extends Controller
 {
     public function getAllLists()
     {
-        /** @var Models\User $owner */
-        $owner = auth()->user();
+        /** @var User $owner */
+        $owner = Auth::user();
 
-        $emailLists = Models\EmailsList::where('owner_id', $owner->id)->get();
+        $emailLists = EmailsList::where('owner_id', $owner->id)->get();
 
         $result = [];
         foreach ($emailLists as $emailList) {
@@ -28,12 +30,12 @@ class EmailListController extends Controller
 
     public function getList(int $id)
     {
-        // ToDo: Get User After authorization
-        $ownerId = 1;
+        /** @var User $owner */
+        $owner = Auth::user();
 
-        $emailList = Models\EmailsList::where([
+        $emailList = EmailsList::where([
             'id' => $id,
-            'owner_id' => $ownerId,
+            'owner_id' => $owner->id,
         ])->firstOrFail();
 
         $result['id'] = $emailList->id;
@@ -50,20 +52,20 @@ class EmailListController extends Controller
             'emails' => 'required|array',
         ]);
 
-        // ToDo: Get User After authorization
-        $ownerId = 1;
+        /** @var User $owner */
+        $owner = Auth::user();
 
-        $emailList = Models\EmailsList::create([
+        $emailList = EmailsList::create([
             'title' => $request->title,
             'emails' => $request->emails,
-            'owner_id' => $ownerId,
+            'owner_id' => $owner->id,
         ]);
 
         $result['id'] = $emailList->id;
         $result['title'] = $emailList->title;
         $result['emails'] = $emailList->emails;
 
-        return json_encode($result);
+        return response(json_encode($result), 201);
     }
 
     public function updateList(Request $request, int $id)
@@ -73,12 +75,12 @@ class EmailListController extends Controller
             'emails' => 'required|array',
         ]);
 
-        // ToDo: Get User After authorization
-        $ownerId = 1;
+        /** @var User $owner */
+        $owner = Auth::user();
 
-        $emailList = Models\EmailsList::where([
+        $emailList = EmailsList::where([
             'id' => $id,
-            'owner_id' => $ownerId,
+            'owner_id' => $owner->id,
         ])->firstOrFail();
 
         $emailList->title = $request->title;
@@ -89,17 +91,17 @@ class EmailListController extends Controller
         $result['title'] = $emailList->title;
         $result['emails'] = $emailList->emails;
 
-        return json_encode($result);
+        return response(json_encode($result), 201);
     }
 
     public function deleteList(int $id)
     {
-        // ToDo: Get User After authorization
-        $ownerId = 1;
+        /** @var User $owner */
+        $owner = Auth::user();
 
-        $emailList = Models\EmailsList::where([
+        $emailList = EmailsList::where([
             'id' => $id,
-            'owner_id' => $ownerId,
+            'owner_id' => $owner->id,
         ])->firstOrFail();
 
         $emailList->delete();
