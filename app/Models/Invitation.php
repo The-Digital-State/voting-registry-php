@@ -19,6 +19,8 @@ class Invitation extends Model
      */
     protected $table = 'invitations';
 
+    protected $fillable = ['token', 'email', 'poll_id'];
+
     /**
      * The attributes that should be cast to native types.
      *

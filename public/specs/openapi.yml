@@ -7,6 +7,8 @@ info:
 servers:
   - url: http://localhost:80
     description: Local server
+  - url: http://212.227.212.93
+    description: Stage server
 
 paths:
   /auth/jwt:
@@ -399,14 +401,9 @@ paths:
                               type: integer
                               example: 1
                               description: The order of the option
-                            percentage:
-                              type: integer
-                              example: 56
-                              nullable: true
                           required:
                             - option
                             - option_index
-                            - percentage
                     required:
                       - title
                       - options
@@ -433,6 +430,8 @@ paths:
                   - question
                   - emailListId
                   - status
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Poll wasn't found
           content: { }
@@ -569,6 +568,11 @@ paths:
                     type: integer
                     example: 66
                     nullable: true
+                  status:
+                    type: string
+                    example: draft
+                    enum:
+                      - draft
                 required:
                   - id
                   - title
@@ -578,6 +582,7 @@ paths:
                   - endDate
                   - question
                   - emailListId
+                  - status
         401:
           $ref: '#/components/responses/UnauthorizedError'
         422:
@@ -748,6 +753,11 @@ paths:
                     type: integer
                     example: 66
                     nullable: true
+                  status:
+                    type: string
+                    example: draft
+                    enum:
+                      - draft
                 required:
                   - id
                   - title
@@ -757,6 +767,7 @@ paths:
                   - endDate
                   - question
                   - emailListId
+                  - status
         401:
           $ref: '#/components/responses/UnauthorizedError'
         404:
@@ -940,6 +951,11 @@ paths:
                   emailListId:
                     type: integer
                     example: 66
+                  status:
+                    type: string
+                    example: published
+                    enum:
+                      - published
                 required:
                   - id
                   - title
@@ -949,6 +965,7 @@ paths:
                   - endDate
                   - question
                   - emailListId
+                  - status
         401:
           $ref: '#/components/responses/UnauthorizedError'
         404:
