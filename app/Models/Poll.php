@@ -48,20 +48,13 @@ class Poll extends Model
     public function status(): string
     {
         if ($this->published_at !== null) {
-            return self::STATUS_PUBLISHED;
-        }
+            if ($this->started_at <= new \DateTime() && $this->ended_at >= new \DateTime()) {
+                return self::STATUS_ACTIVE;
+            }
 
-        if ($this->published_at !== null
-            && $this->started_at <= new \DateTime()
-            && $this->ended_at >= new \DateTime()
-        ) {
-            return self::STATUS_ACTIVE;
-        }
-
-        if ($this->published_at !== null
-            && $this->ended_at <= new \DateTime()
-        ) {
-            return self::STATUS_FINISHED;
+            if ($this->ended_at <= new \DateTime()) {
+                return self::STATUS_FINISHED;
+            }
         }
 
         return self::STATUS_DRAFT;
