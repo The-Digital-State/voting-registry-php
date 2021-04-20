@@ -41,6 +41,8 @@ class Invitation extends Model
      */
     protected $table = 'invitations';
 
+    protected $fillable = ['token', 'email', 'poll_id'];
+
     /**
      * The attributes that aren't mass assignable.
      *
