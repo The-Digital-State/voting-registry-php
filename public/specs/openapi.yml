@@ -7,9 +7,11 @@ info:
 servers:
   - url: http://localhost:80
     description: Local server
+  - url: http://212.227.212.93
+    description: Stage server
 
 paths:
-  /auth/jwt:
+  /auth/jwt/{token}:
     get:
       security: []
       parameters:
@@ -85,46 +87,7 @@ paths:
         401:
           $ref: '#/components/responses/UnauthorizedError'
 
-  /email-list:
-    get:
-      summary: Get email list
-      parameters:
-        - name: id
-          in: path
-          description: ID of email list
-          required: true
-          schema:
-            type: integer
-            example: 99
-      responses:
-        200:
-          description: Email list data
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 99
-                  title:
-                    type: string
-                    example: Двор Перамен
-                  emails:
-                    type: array
-                    items:
-                      type: string
-                      example: test@test.com
-                    description: Empty array if no emails
-                required:
-                  - id
-                  - title
-                  - emails
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          description: Email list not found
-          content: { }
+  /email-list/:
     post:
       summary: Create a new email list
       requestBody:
@@ -189,6 +152,47 @@ paths:
                     items:
                       type: string
                       example: The emails field is required.
+
+  /email-list/{id}:
+    get:
+      summary: Get email list
+      parameters:
+        - name: id
+          in: path
+          description: ID of email list
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Email list data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Двор Перамен
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: test@test.com
+                    description: Empty array if no emails
+                required:
+                  - id
+                  - title
+                  - emails
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Email list not found
+          content: { }
     put:
       summary: Update an existing creator email list
       parameters:
@@ -306,12 +310,12 @@ paths:
                     startDate:
                       type: string
                       format: date-time
-                      example: 2017-07-21T17:32:28Z
+                      example: "2017-07-21T17:32:28Z"
                       nullable: true
                     endDate:
                       type: string
                       format: date-time
-                      example: 2017-07-21T17:32:28Z
+                      example: "2017-07-21T17:32:28Z"
                       nullable: true
                     emailListTitle:
                       type: string
@@ -335,7 +339,8 @@ paths:
                     - status
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /poll:
+
+  /poll/{id}:
     get:
       summary: Get poll data
       parameters:
@@ -373,12 +378,12 @@ paths:
                   startDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                     nullable: true
                   endDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                     nullable: true
                   question:
                     type: object
@@ -392,21 +397,18 @@ paths:
                         items:
                           type: object
                           properties:
+                            optionIndex:
+                              type: integer
+                              description: The order of the option
                             option:
                               type: string
-                              example: Фонтан
-                            option_index:
-                              type: integer
-                              example: 1
-                              description: The order of the option
-                            percentage:
-                              type: integer
-                              example: 56
-                              nullable: true
                           required:
+                            - optionIndex
                             - option
-                            - option_index
-                            - percentage
+                        example: [
+                          { "optionIndex": 1, "option": Фонтан },
+                          { "optionIndex": 2, "option": Памятник }
+                        ]
                     required:
                       - title
                       - options
@@ -433,9 +435,12 @@ paths:
                   - question
                   - emailListId
                   - status
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Poll wasn't found
           content: { }
+
   /poll/draft:
     post:
       summary: Create a new draft poll
@@ -461,12 +466,12 @@ paths:
                 startDate:
                   type: string
                   format: date-time
-                  example: 2017-07-21T17:32:28Z
+                  example: "2017-07-21T17:32:28Z"
                   nullable: true
                 endDate:
                   type: string
                   format: date-time
-                  example: 2017-07-21T17:32:28Z
+                  example: "2017-07-21T17:32:28Z"
                   nullable: true
                 question:
                   type: object
@@ -482,14 +487,16 @@ paths:
                         properties:
                           optionIndex:
                             type: integer
-                            example: 1
                             description: The order of the option
                           option:
                             type: string
-                            example: Фонтан
                         required:
                           - optionIndex
                           - option
+                      example: [
+                        { "optionIndex": 1, "option": Фонтан },
+                        { "optionIndex": 2, "option": Памятник }
+                      ]
                   required:
                     - title
                     - options
@@ -533,12 +540,12 @@ paths:
                   startDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                     nullable: true
                   endDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                     nullable: true
                   question:
                     type: object
@@ -554,14 +561,16 @@ paths:
                           properties:
                             optionIndex:
                               type: integer
-                              example: 1
                               description: The order of the option
                             option:
                               type: string
-                              example: Фонтан
                           required:
                             - optionIndex
                             - option
+                        example: [
+                          { "optionIndex": 1, "option": Фонтан },
+                          { "optionIndex": 2, "option": Памятник }
+                        ]
                     required:
                       - title
                       - options
@@ -569,6 +578,11 @@ paths:
                     type: integer
                     example: 66
                     nullable: true
+                  status:
+                    type: string
+                    example: draft
+                    enum:
+                      - draft
                 required:
                   - id
                   - title
@@ -578,6 +592,7 @@ paths:
                   - endDate
                   - question
                   - emailListId
+                  - status
         401:
           $ref: '#/components/responses/UnauthorizedError'
         422:
@@ -607,6 +622,8 @@ paths:
                     items:
                       type: string
                       example: The question.options must be at least 2 characters.
+
+  /poll/draft/{id}:
     put:
       summary: Update an existing draft poll
       parameters:
@@ -639,12 +656,12 @@ paths:
                 startDate:
                   type: string
                   format: date-time
-                  example: 2017-07-21T17:32:28Z
+                  example: "2017-07-21T17:32:28Z"
                   nullable: true
                 endDate:
                   type: string
                   format: date-time
-                  example: 2017-07-21T17:32:28Z
+                  example: "2017-07-21T17:32:28Z"
                   nullable: true
                 question:
                   type: object
@@ -660,14 +677,16 @@ paths:
                         properties:
                           optionIndex:
                             type: integer
-                            example: 1
                             description: The order of the option
                           option:
                             type: string
-                            example: Фонтан
                         required:
                           - optionIndex
                           - option
+                      example: [
+                        { "optionIndex": 1, "option": Фонтан },
+                        { "optionIndex": 2, "option": Памятник }
+                      ]
                   required:
                     - title
                     - options
@@ -712,12 +731,12 @@ paths:
                   startDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                     nullable: true
                   endDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                     nullable: true
                   question:
                     type: object
@@ -733,14 +752,16 @@ paths:
                           properties:
                             optionIndex:
                               type: integer
-                              example: 1
                               description: The order of the option
                             option:
                               type: string
-                              example: Фонтан
                           required:
                             - optionIndex
                             - option
+                        example: [
+                          { "optionIndex": 1, "option": Фонтан },
+                          { "optionIndex": 2, "option": Памятник }
+                        ]
                     required:
                       - title
                       - options
@@ -748,6 +769,11 @@ paths:
                     type: integer
                     example: 66
                     nullable: true
+                  status:
+                    type: string
+                    example: draft
+                    enum:
+                      - draft
                 required:
                   - id
                   - title
@@ -757,6 +783,7 @@ paths:
                   - endDate
                   - question
                   - emailListId
+                  - status
         401:
           $ref: '#/components/responses/UnauthorizedError'
         404:
@@ -809,7 +836,7 @@ paths:
           description: Poll wasn't found
           content: { }
 
-  /poll/publish:
+  /poll/publish/{id}:
     put:
       summary: Publish a poll
       parameters:
@@ -841,11 +868,11 @@ paths:
                 startDate:
                   type: string
                   format: date-time
-                  example: 2017-07-21T17:32:28Z
+                  example: "2017-07-21T17:32:28Z"
                 endDate:
                   type: string
                   format: date-time
-                  example: 2017-07-21T17:32:28Z
+                  example: "2017-07-21T17:32:28Z"
                 question:
                   type: object
                   properties:
@@ -859,14 +886,16 @@ paths:
                         properties:
                           optionIndex:
                             type: integer
-                            example: 1
                             description: The order of the option
                           option:
                             type: string
-                            example: Фонтан
                         required:
                           - optionIndex
                           - option
+                      example: [
+                        { "optionIndex": 1, "option": Фонтан },
+                        { "optionIndex": 2, "option": Памятник }
+                      ]
                   required:
                     - title
                     - options
@@ -908,11 +937,11 @@ paths:
                   startDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                   endDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                   question:
                     type: object
                     properties:
@@ -926,20 +955,27 @@ paths:
                           properties:
                             optionIndex:
                               type: integer
-                              example: 1
                               description: The order of the option
                             option:
                               type: string
-                              example: Фонтан
                           required:
                             - optionIndex
                             - option
+                        example: [
+                          { "optionIndex": 1, "option": Фонтан },
+                          { "optionIndex": 2, "option": Памятник }
+                        ]
                     required:
                       - title
                       - options
                   emailListId:
                     type: integer
                     example: 66
+                  status:
+                    type: string
+                    example: published
+                    enum:
+                      - published
                 required:
                   - id
                   - title
@@ -949,6 +985,7 @@ paths:
                   - endDate
                   - question
                   - emailListId
+                  - status
         401:
           $ref: '#/components/responses/UnauthorizedError'
         404:
@@ -1002,7 +1039,7 @@ paths:
                       type: string
                       example: The emails field is required.
 
-  /poll/result:
+  /poll/result/{id}:
     get:
       summary: Get all poll data for result
       parameters:
@@ -1030,11 +1067,11 @@ paths:
                   startDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                   endDate:
                     type: string
                     format: date-time
-                    example: 2017-07-21T17:32:28Z
+                    example: "2017-07-21T17:32:28Z"
                   question:
                     type: object
                     properties:
@@ -1133,7 +1170,7 @@ paths:
           description: Poll was not found
           content: { }
 
-  /poll/cast:
+  /poll/cast/{id}:
     put:
       summary: Cast a vote
       parameters:

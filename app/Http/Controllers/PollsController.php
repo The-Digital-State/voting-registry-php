@@ -2,18 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models;
+use App\Models\EmailsList;
+use App\Models\Invitation;
+use App\Models\Poll;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Lumen\Routing\Controller;
 
 class PollsController extends Controller
 {
     public function getAllPolls()
     {
-        // ToDo: Get User After authorization
-        $creatorId = 1;
+        /** @var User $creator */
+        $creator = Auth::user();
 
-        $polls = Models\Poll::where('creator_id', $creatorId)->get();
+        $polls = Poll::where('creator_id', $creator->id)->get();
 
         $result = [];
         foreach ($polls as $poll) {
@@ -21,9 +26,8 @@ class PollsController extends Controller
             $resultPoll['title'] = $poll->title;
             $resultPoll['startDate'] = $poll->startedAt;
             $resultPoll['endDate'] = $poll->endedAt;
-            $resultPoll['emailListTitle'] = $poll->emailList;
-            $resultPoll['previewLink'] = 'http://albo.vote/preview/23';
-            $resultPoll['status'] = 'draft';
+            $resultPoll['emailListTitle'] = $poll->emailsList->title ?? '';
+            $resultPoll['status'] = $poll->status();
 
             $result[] = $resultPoll;
         }
@@ -33,12 +37,12 @@ class PollsController extends Controller
 
     public function getPoll(int $id)
     {
-        // ToDo: Get User After authorization
-        $creatorId = 1;
+        /** @var User $creator */
+        $creator = Auth::user();
 
-        $poll = Models\Poll::where([
+        $poll = Poll::where([
             'id' => $id,
-            'creator_id' => $creatorId,
+            'creator_id' => $creator->id,
         ])->firstOrFail();
 
         $result['id'] = $poll->id;
@@ -48,8 +52,8 @@ class PollsController extends Controller
         $result['startDate'] = $poll->started_at;
         $result['endDate'] = $poll->ended_at;
         $result['question'] = $poll->question;
-        $result['emailListId'] = $poll->emails_list_id;
-        $result['status'] = null;
+        $result['emailListId'] = $poll->emailsList->id ?? '';
+        $result['status'] = $poll->status();
 
         return json_encode($result);
     }
@@ -63,18 +67,23 @@ class PollsController extends Controller
             'question.options' => 'min:2',
         ]);
 
-        // ToDo: Get User After authorization
-        $creatorId = 1;
+        /** @var User $creator */
+        $creator = Auth::user();
 
-        $poll = Models\Poll::create([
+        $emailList = EmailsList::where([
+            'id' => $request->emailListId,
+            'owner_id' => $creator->id,
+        ])->firstOrFail();
+
+        $poll = Poll::create([
             'title' => $request->title,
             'description' => $request->description,
             'short_description' => $request->shortDescription,
             'started_at' => $request->startDate,
             'ended_at' => $request->endDate,
             'question' => $request->question,
-            'emails_list_id' => $request->emailListId, //ToDo: check the ownership of this list
-            'creator_id' => $creatorId,
+            'emails_list_id' => $emailList->id,
+            'creator_id' => $creator->id,
         ]);
 
         $result['id'] = $poll->id;
@@ -85,8 +94,9 @@ class PollsController extends Controller
         $result['endDate'] = $poll->ended_at;
         $result['question'] = $poll->question;
         $result['emailListId'] = $poll->emails_list_id;
+        $result['status'] = $poll->status();
 
-        return json_encode($result);
+        return response(json_encode($result), 201);
     }
 
     public function updateDraftPoll(Request $request, int $id)
@@ -98,13 +108,18 @@ class PollsController extends Controller
             'question.options' => 'min:2',
         ]);
 
-        // ToDo: Get User After authorization
-        $creatorId = 1;
+        /** @var User $creator */
+        $creator = Auth::user();
 
-        $poll = Models\Poll::where([
+        $poll = Poll::where([
             'id' => $id,
-            'creator_id' => $creatorId,
+            'creator_id' => $creator->id,
             'published_at' => null,
+        ])->firstOrFail();
+
+        $emailList = EmailsList::where([
+            'id' => $request->emailListId,
+            'owner_id' => $creator->id,
         ])->firstOrFail();
 
         $poll->title = $request->title;
@@ -113,7 +128,7 @@ class PollsController extends Controller
         $poll->started_at = $request->startDate;
         $poll->ended_at = $request->endDate;
         $poll->question = $request->question;
-        $poll->emails_list_id = $request->emailListId; //ToDo: check the ownership of this list
+        $poll->emails_list_id = $emailList->id;
         $poll->save();
 
         $result['id'] = $poll->id;
@@ -124,18 +139,19 @@ class PollsController extends Controller
         $result['endDate'] = $poll->ended_at;
         $result['question'] = $poll->question;
         $result['emailListId'] = $poll->emails_list_id;
+        $result['status'] = $poll->status();
 
-        return json_encode($result);
+        return response(json_encode($result), 201);
     }
 
     public function deleteDraftPoll(int $id)
     {
-        // ToDo: Get User After authorization
-        $creatorId = 1;
+        /** @var User $creator */
+        $creator = Auth::user();
 
-        $poll = Models\Poll::where([
+        $poll = Poll::where([
             'id' => $id,
-            'creator_id' => $creatorId,
+            'creator_id' => $creator->id,
             'published_at' => null,
         ])->firstOrFail();
 
@@ -157,13 +173,18 @@ class PollsController extends Controller
             'emailListId' => 'required',
         ]);
 
-        // ToDo: Get User After authorization
-        $creatorId = 1;
+        /** @var User $creator */
+        $creator = Auth::user();
 
-        $poll = Models\Poll::where([
+        $poll = Poll::where([
             'id' => $id,
-            'creator_id' => $creatorId,
+            'creator_id' => $creator->id,
             'published_at' => null,
+        ])->firstOrFail();
+
+        $emailList = EmailsList::where([
+            'id' => $request->emailListId,
+            'owner_id' => $creator->id,
         ])->firstOrFail();
 
         $poll->title = $request->title;
@@ -172,11 +193,24 @@ class PollsController extends Controller
         $poll->started_at = $request->startDate;
         $poll->ended_at = $request->endDate;
         $poll->question = $request->question;
-        $poll->emails_list_id = $request->emailListId; //ToDo: check the ownership of this list
+        $poll->emails_list_id = $emailList->id;
         $poll->published_at = new \DateTime();
         $poll->save();
 
-        // ToDo: Send emails with access token
+        foreach ($emailList->emails as $email) {
+            $token = bin2hex(random_bytes(16));
+            $invitation = Invitation::create([
+                'token' => $token,
+                'email' => $email,
+                'poll_id' => $poll->id,
+            ]);
+
+            Mail::send([], [], function ($message) use($invitation) {
+                $message->to($invitation->email)
+                    ->subject('Invitation')
+                    ->setBody("Hi! This is your token: {$invitation->token}");
+            });
+        }
 
         $result['id'] = $poll->id;
         $result['title'] = $poll->title;
@@ -186,8 +220,8 @@ class PollsController extends Controller
         $result['endDate'] = $poll->ended_at;
         $result['question'] = $poll->question;
         $result['emailListId'] = $poll->emails_list_id;
-        $result['previewLink'] = 'http://albo.vote/preview/23';
+        $result['status'] = $poll->status();
 
-        return json_encode($result);
+        return response(json_encode($result), 201);
     }
 }
