@@ -11,6 +11,7 @@
         "illuminate/mail": "^8.37",
         "laravel/lumen-framework": "^8.0",
         "lcobucci/jwt": "3.2.5",
+        "nordsoftware/lumen-cors": "^3.4",
         "tymon/jwt-auth": "dev-develop"
     },
     "require-dev": {

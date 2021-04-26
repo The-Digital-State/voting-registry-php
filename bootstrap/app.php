@@ -1,5 +1,8 @@
 <?php
 
+use Nord\Lumen\Cors\CorsMiddleware;
+use Nord\Lumen\Cors\CorsServiceProvider;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
@@ -74,6 +77,10 @@ $app->configure('app');
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
+$app->middleware([
+    CorsMiddleware::class,
+]);
+
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
 ]);
@@ -109,6 +116,7 @@ $app->alias('mailer', Illuminate\Mail\Mailer::class);
 $app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
 $app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
 
+$app->register(CorsServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
