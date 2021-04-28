@@ -9,12 +9,26 @@ $router->get('/health-check', function () {
 });
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
-    $router->get('/email-lists', 'EmailListController@getAllLists');
-    $router->get('/email-list/{id:[0-9]+}', 'EmailListController@getList');
-    $router->post('/email-list', 'EmailListController@createNewList');
-    $router->put('/email-list/{id:[0-9]+}', 'EmailListController@updateList');
-    $router->delete('/email-list/{id:[0-9]+}', 'EmailListController@deleteList');
+    $router->put('/auth/jwt/invalidate', 'AuthController@invalidateJwt');
+});
 
+/**
+ * Email Lists
+ */
+$router->group(['middleware' => 'auth'], function () use ($router) {
+    // list
+    $router->get('email-lists', 'EmailListController@list');
+    // get
+    $router->get('email-lists/{id:[0-9]+}', 'EmailListController@get');
+    // create
+    $router->post('email-lists', 'EmailListController@create');
+    // update
+    $router->put('email-lists/{id:[0-9]+}', 'EmailListController@update');
+    // delete
+    $router->delete('email-lists/{id:[0-9]+}', 'EmailListController@delete');
+});
+
+$router->group(['middleware' => 'auth'], function () use ($router) {
     $router->get('/polls', 'PollsController@getAllPolls');
     $router->get('/poll/{id:[0-9]+}', 'PollsController@getPoll');
     $router->post('/poll/draft', 'PollsController@createDraftPoll');
