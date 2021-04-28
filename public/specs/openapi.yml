@@ -77,17 +77,18 @@ paths:
                     title:
                       type: string
                       example: Двор Перамен
-                    emailsCount:
-                      type: integer
-                      example: 99
+                    emails:
+                      type: array
+                      items:
+                        type: string
+                        example: test@test.com
+                      description: Empty array if no emails
                   required:
                     - id
                     - title
                     - emailsCount
         401:
           $ref: '#/components/responses/UnauthorizedError'
-
-  /email-list/:
     post:
       summary: Create a new email list
       requestBody:
@@ -153,7 +154,7 @@ paths:
                       type: string
                       example: The emails field is required.
 
-  /email-list/{id}:
+  /email-lists/{id}:
     get:
       summary: Get email list
       parameters:
