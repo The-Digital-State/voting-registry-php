@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\PollResource;
 use App\Jobs\SendInvitations;
 use App\Models\Poll;
+use Carbon\Traits\Creator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Laravel\Lumen\Routing\Controller;
@@ -77,7 +78,7 @@ class PollsController extends Controller
             'description' => $request->get('description', ''),
             'short_description' => $request->get('shortDescription', ''),
             'started_at' => $request->get('startDate', null),
-            'ended_at' => $request->get('endedDate', null),
+            'ended_at' => $request->get('endDate', null),
             'question' => $request->get('question', []),
             'emails_list_id' => $request->get('emailListId', null),
         ]);
