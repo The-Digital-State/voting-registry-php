@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class EmailListResource extends JsonResource
+class PollResource extends JsonResource
 {
     public static $wrap = null;
 
@@ -19,7 +19,13 @@ class EmailListResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'emails' => $this->emails,
+            'description' => $this->description,
+            'shortDescription' => $this->short_description,
+            'startDate' => $this->started_at,
+            'endDate' => $this->ended_at,
+            'question' => $this->question,
+            'emailListId' => $this->emails_list_id,
+            'publishedAt' => $this->published_at,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

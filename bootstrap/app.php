@@ -106,6 +106,7 @@ $app['auth']->provider('jwt-provider',
         return new \App\Providers\JwtProvider();
     });
 
+$app->register(Illuminate\Notifications\NotificationServiceProvider::class);
 $app->register(Illuminate\Mail\MailServiceProvider::class);
 $app->configure('mail');
 

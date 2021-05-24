@@ -12,9 +12,7 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->put('/auth/jwt/invalidate', 'AuthController@invalidateJwt');
 });
 
-/**
- * Email Lists
- */
+// Email Lists
 $router->group(['middleware' => 'auth'], function () use ($router) {
     // list
     $router->get('email-lists', 'EmailListController@list');
@@ -28,15 +26,24 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->delete('email-lists/{id:[0-9]+}', 'EmailListController@delete');
 });
 
+// Polls
 $router->group(['middleware' => 'auth'], function () use ($router) {
-    $router->get('/polls', 'PollsController@getAllPolls');
-    $router->get('/poll/{id:[0-9]+}', 'PollsController@getPoll');
-    $router->post('/poll/draft', 'PollsController@createDraftPoll');
-    $router->put('/poll/draft/{id:[0-9]+}', 'PollsController@updateDraftPoll');
-    $router->delete('/poll/draft/{id:[0-9]+}', 'PollsController@deleteDraftPoll');
+    // list
+    $router->get('polls', 'PollsController@list');
+    // get
+    $router->get('polls/{id:[0-9]+}', 'PollsController@get');
+    // create
+    $router->post('polls', 'PollsController@create');
+    // update
+    $router->put('polls/{id:[0-9]+}/', 'PollsController@update');
+    // publish
+    $router->put('polls/{id:[0-9]+}/publish', 'PollsController@publish');
+    // delete
+    $router->delete('polls/{id:[0-9]+}', 'PollsController@delete');
+});
 
-    $router->put('/poll/publish/{id:[0-9]+}', 'PollsController@publishPoll');
-
+// Voter
+$router->group(['middleware'=>'auth'], function() use ($router){
     $router->post('/voter/poll/cast/{id:[0-9]+}', 'VoterController@castVote');
 });
 

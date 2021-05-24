@@ -2,189 +2,169 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EmailsList;
-use App\Models\Invitation;
+use App\Http\Resources\PollResource;
+use App\Jobs\SendInvitations;
 use App\Models\Poll;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Carbon;
 use Laravel\Lumen\Routing\Controller;
+use Validator;
 
 class PollsController extends Controller
 {
-    public function getAllPolls()
+    public function get(Request $request, $id)
     {
-        /** @var User $creator */
-        $creator = Auth::user();
+        return new PollResource(Poll::where(['id' => $id, 'creator_id' => $request->user()->id])->firstOrFail());
+    }
 
-        $polls = Poll::where('creator_id', $creator->id)->get();
+    public function list(Request $request)
+    {
+        $this->validate($request, [
+            'page' => 'numeric',
+            'perPage' => 'numeric',
+        ]);
 
-        $result = [];
-        foreach ($polls as $poll) {
-            $resultPoll['id'] = $poll->id;
-            $resultPoll['title'] = $poll->title;
-            $resultPoll['startDate'] = $poll->startedAt;
-            $resultPoll['endDate'] = $poll->endedAt;
-            $resultPoll['emailListTitle'] = $poll->emailsList->title ?? '';
-            $resultPoll['status'] = $poll->status();
+        $page = (int)$request->get('page', 1);
+        $perPage = (int)$request->get('perPage', 10);
 
-            $result[] = $resultPoll;
+        $query = Poll::where(['creator_id' => $request->user()->id]);
+        $polls = $query->forPage($page, $perPage)->get();
+        $total = $query->count();
+
+        return PollResource::collection($polls)
+            ->additional(['pagination' => [
+                'page' => $page,
+                'lastPage' => ceil($total / $perPage),
+                'perPage' => $perPage,
+                'total' => $total,
+            ]]);
+    }
+
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Exception
+     */
+    public function create(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'description' => 'max:1500',
+            'shortDescription' => 'max:350',
+            'question.title' => 'max:500',
+            'question.options' => 'min:2',
+        ]);
+
+        $validator->sometimes('startDate', 'date|before:endDate', function ($input) {
+            return !empty($input->endDate);
+        });
+
+        $validator->sometimes('endDate', 'date|after:startDate', function ($input) {
+            return !empty($input->startDate);
+        });
+
+        $validator->sometimes('emailListId', 'integer|exists:emails_lists,id,owner_id,' . $request->user()->id, function ($input) {
+            return !empty($input->emailListId);
+        });
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
         }
 
-        return json_encode($result);
-    }
-
-    public function getPoll(int $id)
-    {
-        /** @var User $creator */
-        $creator = Auth::user();
-
-        $poll = Poll::where([
-            'id' => $id,
-            'creator_id' => $creator->id,
-        ])->firstOrFail();
-
-        $result['id'] = $poll->id;
-        $result['title'] = $poll->title;
-        $result['description'] = $poll->description;
-        $result['shortDescription'] = $poll->short_description;
-        $result['startDate'] = $poll->started_at;
-        $result['endDate'] = $poll->ended_at;
-        $result['question'] = $poll->question;
-        $result['emailListId'] = $poll->emailsList->id ?? '';
-        $result['status'] = $poll->status();
-
-        return json_encode($result);
-    }
-
-    public function createDraftPoll(Request $request)
-    {
-        $this->validate($request, [
-            'title' => 'required',
-            'description' => 'max:1500',
-            'shortDescription' => 'max:350',
-            'question.options' => 'min:2',
-        ]);
-
-        /** @var User $creator */
-        $creator = Auth::user();
-
-        $emailList = EmailsList::where([
-            'id' => $request->emailListId,
-            'owner_id' => $creator->id,
-        ])->firstOrFail();
-
+        /** @var Poll $poll */
         $poll = Poll::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'short_description' => $request->shortDescription,
-            'started_at' => $request->startDate,
-            'ended_at' => $request->endDate,
-            'question' => $request->question,
-            'emails_list_id' => $emailList->id,
-            'creator_id' => $creator->id,
+            'creator_id' => $request->user()->id,
+            'title' => $request->get('title'),
+            'description' => $request->get('description', ''),
+            'short_description' => $request->get('shortDescription', ''),
+            'started_at' => $request->get('startDate', null),
+            'ended_at' => $request->get('endedDate', null),
+            'question' => $request->get('question', []),
+            'emails_list_id' => $request->get('emailListId', null),
         ]);
 
-        $result['id'] = $poll->id;
-        $result['title'] = $poll->title;
-        $result['description'] = $poll->description;
-        $result['shortDescription'] = $poll->short_description;
-        $result['startDate'] = $poll->started_at;
-        $result['endDate'] = $poll->ended_at;
-        $result['question'] = $poll->question;
-        $result['emailListId'] = $poll->emails_list_id;
-        $result['status'] = $poll->status();
-
-        return response(json_encode($result), 201);
+        return new PollResource($poll);
     }
 
-    public function updateDraftPoll(Request $request, int $id)
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Exception
+     */
+    public function update(Request $request, int $id)
     {
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'title' => 'required',
             'description' => 'max:1500',
             'shortDescription' => 'max:350',
+            'question.title' => 'max:500',
             'question.options' => 'min:2',
         ]);
 
-        /** @var User $creator */
-        $creator = Auth::user();
+        $validator->sometimes('startDate', 'date|before:endDate', function ($input) {
+            return !empty($input->endDate);
+        });
 
+        $validator->sometimes('endDate', 'date|after:startDate', function ($input) {
+            return !empty($input->startDate);
+        });
+
+        $validator->sometimes('emailListId', 'integer|exists:emails_lists,id,owner_id,' . $request->user()->id, function ($input) {
+            return !empty($input->emailListId);
+        });
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
+
+        /** @var Poll $poll */
         $poll = Poll::where([
             'id' => $id,
-            'creator_id' => $creator->id,
+            'creator_id' => $request->user()->id,
             'published_at' => null,
         ])->firstOrFail();
 
-        $emailList = EmailsList::where([
-            'id' => $request->emailListId,
-            'owner_id' => $creator->id,
-        ])->firstOrFail();
-
-        $poll->title = $request->title;
-        $poll->description = $request->description;
-        $poll->short_description = $request->shortDescription;
-        $poll->started_at = $request->startDate;
-        $poll->ended_at = $request->endDate;
-        $poll->question = $request->question;
-        $poll->emails_list_id = $emailList->id;
+        $poll->title = $request->get('title');
+        $poll->description = $request->get('description', $poll->description);
+        $poll->short_description = $request->get('shortDescription', $poll->short_description);
+        $poll->started_at = $request->get('startDate', $poll->started_at);
+        $poll->ended_at = $request->get('endDate', $poll->ended_at);
+        $poll->question = $request->get('question', $poll->question);
+        $poll->emails_list_id = $request->get('emailListId', $poll->emails_list_id);
         $poll->save();
 
-        $result['id'] = $poll->id;
-        $result['title'] = $poll->title;
-        $result['description'] = $poll->description;
-        $result['shortDescription'] = $poll->short_description;
-        $result['startDate'] = $poll->started_at;
-        $result['endDate'] = $poll->ended_at;
-        $result['question'] = $poll->question;
-        $result['emailListId'] = $poll->emails_list_id;
-        $result['status'] = $poll->status();
-
-        return response(json_encode($result), 201);
+        return (new PollResource($poll))->response()->setStatusCode(201);
     }
 
-    public function deleteDraftPoll(int $id)
+    public function delete(Request $request, int $id)
     {
-        /** @var User $creator */
-        $creator = Auth::user();
-
         $poll = Poll::where([
             'id' => $id,
-            'creator_id' => $creator->id,
+            'creator_id' => $request->user()->id,
             'published_at' => null,
         ])->firstOrFail();
 
         $poll->delete();
 
-        return response('');
+        return response('', 204);
     }
 
-    public function publishPoll(Request $request, int $id)
+    public function publish(Request $request, int $id)
     {
         $this->validate($request, [
             'title' => 'required',
             'description' => 'required|max:1500',
-            'shortDescription' => 'max:350',
-            'startDate' => 'required',
-            'endDate' => 'required',
-            'question' => 'required',
-            'question.options' => 'min:2',
-            'emailListId' => 'required',
+            'shortDescription' => 'required|max:350',
+            'startDate' => 'required|date|before:endDate',
+            'endDate' => 'required|date|after:startDate',
+            'question.title' => 'required|max:500',
+            'question.options' => 'required|min:2',
+            'emailListId' => 'required|integer|exists:emails_lists,id,owner_id,' . $request->user()->id,
         ]);
 
-        /** @var User $creator */
-        $creator = Auth::user();
-
+        /** @var Poll $poll */
         $poll = Poll::where([
             'id' => $id,
-            'creator_id' => $creator->id,
+            'creator_id' => $request->user()->id,
             'published_at' => null,
-        ])->firstOrFail();
-
-        $emailList = EmailsList::where([
-            'id' => $request->emailListId,
-            'owner_id' => $creator->id,
         ])->firstOrFail();
 
         $poll->title = $request->title;
@@ -193,35 +173,12 @@ class PollsController extends Controller
         $poll->started_at = $request->startDate;
         $poll->ended_at = $request->endDate;
         $poll->question = $request->question;
-        $poll->emails_list_id = $emailList->id;
-        $poll->published_at = new \DateTime();
+        $poll->emails_list_id = $request->emailListId;
+        $poll->published_at = Carbon::now();
         $poll->save();
 
-        foreach ($emailList->emails as $email) {
-            $token = bin2hex(random_bytes(16));
-            $invitation = Invitation::create([
-                'token' => $token,
-                'email' => $email,
-                'poll_id' => $poll->id,
-            ]);
+        dispatch(new SendInvitations($poll));
 
-            Mail::send([], [], function ($message) use($invitation) {
-                $message->to($invitation->email)
-                    ->subject('Invitation')
-                    ->setBody("Hi! This is your token: {$invitation->token}");
-            });
-        }
-
-        $result['id'] = $poll->id;
-        $result['title'] = $poll->title;
-        $result['description'] = $poll->description;
-        $result['shortDescription'] = $poll->short_description;
-        $result['startDate'] = $poll->started_at;
-        $result['endDate'] = $poll->ended_at;
-        $result['question'] = $poll->question;
-        $result['emailListId'] = $poll->emails_list_id;
-        $result['status'] = $poll->status();
-
-        return response(json_encode($result), 201);
+        return (new PollResource($poll))->response()->setStatusCode(201);
     }
 }
