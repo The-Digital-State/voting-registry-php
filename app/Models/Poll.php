@@ -2,20 +2,37 @@
 
 namespace App\Models;
 
+use App\Observers\PollObserver;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Query\Builder;
 
+/**
+ * Class Poll
+ * @property string $title
+ * @property string $description
+ * @property string $short_description
+ * @property Carbon|null $started_at
+ * @property Carbon|null $ended_at
+ * @property Carbon|null $published_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property array $question
+ * @property integer $emails_list_id
+ * @property integer $creator_id
+ * @property-read User $creator
+ * @property-read EmailsList $emailsList
+ * @property-read Invitation[] $invitations
+ * @property-read PollResult[] $results
+ * @package App\Models
+ */
 class Poll extends Model
 {
-    public const STATUS_DRAFT = 'draft';
-    public const STATUS_PUBLISHED = 'published';
-    public const STATUS_ACTIVE = 'active';
-    public const STATUS_FINISHED = 'finished';
-    public const STATUS_CLOSED = 'closed';
-
     use HasFactory;
+    use PollObserver;
 
     /**
      * The table associated with the model.
@@ -28,6 +45,8 @@ class Poll extends Model
         'title',
         'description',
         'short_description',
+        'started_at',
+        'ended_at',
         'question',
         'emails_list_id',
         'creator_id'
@@ -44,21 +63,6 @@ class Poll extends Model
         'ended_at' => 'datetime',
         'published_at' => 'datetime',
     ];
-
-    public function status(): string
-    {
-        if ($this->published_at !== null) {
-            if ($this->started_at <= new \DateTime() && $this->ended_at >= new \DateTime()) {
-                return self::STATUS_ACTIVE;
-            }
-
-            if ($this->ended_at <= new \DateTime()) {
-                return self::STATUS_FINISHED;
-            }
-        }
-
-        return self::STATUS_DRAFT;
-    }
 
     public function creator(): BelongsTo
     {
