@@ -11,20 +11,18 @@ use Laravel\Lumen\Routing\Controller;
 
 class EmailListController extends Controller
 {
-    public function get(int $id)
+    public function get(Request $request, int $id)
     {
-        /** @var User $user */
-        $user = Auth::user();
-        $emailList = EmailsList::where(['id' => $id, 'owner_id' => $user->id])->firstOrFail();
-
-        return new EmailListResource($emailList);
+        return new EmailListResource(
+            EmailsList::where(['id' => $id, 'owner_id' => $request->user()->id])->firstOrFail()
+        );
     }
 
-    public function list()
+    public function list(Request $request)
     {
         /** @var User $user */
         $user = Auth::user();
-        $emailLists = EmailsList::where('owner_id', $user->id)->get();
+        $emailLists = EmailsList::where('owner_id', $request->user()->id)->get();
 
         return EmailListResource::collection($emailLists);
     }
@@ -37,12 +35,10 @@ class EmailListController extends Controller
             'emails.*' => 'email:filter',
         ]);
 
-        /** @var User $user */
-        $user = Auth::user();
         $emailList = EmailsList::create([
             'title' => $request->title,
             'emails' => $request->emails,
-            'owner_id' => $user->id,
+            'owner_id' => $request->user()->id,
         ]);
 
         return (new EmailListResource($emailList))->response()->setStatusCode(201);
@@ -56,16 +52,13 @@ class EmailListController extends Controller
             'emails.*' => 'email:filter',
         ]);
 
-        /** @var User $user */
-        $user = Auth::user();
-
         $emailList = EmailsList::where([
             'id' => $id,
-            'owner_id' => $user->id,
+            'owner_id' => $request->user()->id,
         ])->firstOrFail();
 
-        $emailList->title = $request->title;
-        $emailList->emails = $request->emails;
+        $emailList->title = $request->get('title', $emailList->title);
+        $emailList->emails = $request->get('emails', $emailList->emails);
         $emailList->save();
 
         return (new EmailListResource($emailList))->response()->setStatusCode(201);
