@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class Poll
@@ -63,6 +63,28 @@ class Poll extends Model
         'ended_at' => 'datetime',
         'published_at' => 'datetime',
     ];
+
+    /**
+     * Scope a query to only include draft polls.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeDraft(Builder $query): Builder
+    {
+        return $query->whereNull('published_at');
+    }
+
+    /**
+     * Scope a query to only include published polls.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->whereNotNull('published_at');
+    }
 
     public function creator(): BelongsTo
     {

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\PollHasAlreadyBeenPublished;
 use App\Http\Resources\PollResource;
 use App\Jobs\SendInvitations;
 use App\Models\Poll;
-use Carbon\Traits\Creator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Laravel\Lumen\Routing\Controller;
-use Validator;
 
 class PollsController extends Controller
 {
@@ -47,92 +47,88 @@ class PollsController extends Controller
      */
     public function create(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required',
-            'description' => 'max:1500',
-            'shortDescription' => 'max:350',
-            'question.title' => 'max:500',
-            'question.options' => 'min:2',
-        ]);
+        $this->validated($request);
 
-        $validator->sometimes('startDate', 'date|before:endDate', function ($input) {
-            return !empty($input->endDate);
-        });
+        try {
+            DB::beginTransaction();
 
-        $validator->sometimes('endDate', 'date|after:startDate', function ($input) {
-            return !empty($input->startDate);
-        });
+            $poll = new Poll();
+            $poll->creator_id = $request->user()->id;
+            $poll->title = $request->input('title');
+            $poll->description = $request->input('description');
+            $poll->short_description = $request->input('shortDescription');
+            $poll->started_at = $request->input('startDate');
+            $poll->ended_at = $request->input('endDate');
+            $poll->question = $request->input('question');
+            $poll->emails_list_id = $request->input('emailListId');
 
-        $validator->sometimes('emailListId', 'integer|exists:emails_lists,id,owner_id,' . $request->user()->id, function ($input) {
-            return !empty($input->emailListId);
-        });
+            if ($request->input('publish')) {
+                $poll->published_at = Carbon::now();
+            }
 
-        if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
+            $poll->save();
+
+            if ($request->input('publish')) {
+                dispatch(new SendInvitations($poll));
+            }
+
+            DB::commit();
+
+            return (new PollResource($poll))->response()->setStatusCode(201);
+        } catch (\Exception $exception) {
+            DB::rollback();
+
+            throw $exception;
         }
-
-        /** @var Poll $poll */
-        $poll = Poll::create([
-            'creator_id' => $request->user()->id,
-            'title' => $request->get('title'),
-            'description' => $request->get('description', ''),
-            'short_description' => $request->get('shortDescription', ''),
-            'started_at' => $request->get('startDate', null),
-            'ended_at' => $request->get('endDate', null),
-            'question' => $request->get('question', []),
-            'emails_list_id' => $request->get('emailListId', null),
-        ]);
-
-        return new PollResource($poll);
     }
 
     /**
      * @throws \Illuminate\Validation\ValidationException
-     * @throws \Exception
+     * @throws PollHasAlreadyBeenPublished
      */
     public function update(Request $request, int $id)
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required',
-            'description' => 'max:1500',
-            'shortDescription' => 'max:350',
-            'question.title' => 'max:500',
-            'question.options' => 'min:2',
-        ]);
+        $this->validated($request);
 
-        $validator->sometimes('startDate', 'date|before:endDate', function ($input) {
-            return !empty($input->endDate);
-        });
+        try {
+            DB::beginTransaction();
 
-        $validator->sometimes('endDate', 'date|after:startDate', function ($input) {
-            return !empty($input->startDate);
-        });
+            /** @var Poll $poll */
+            $poll = Poll::where([
+                'id' => $id,
+                'creator_id' => $request->user()->id,
+            ])->firstOrFail();
 
-        $validator->sometimes('emailListId', 'integer|exists:emails_lists,id,owner_id,' . $request->user()->id, function ($input) {
-            return !empty($input->emailListId);
-        });
+            if ($poll->published_at) {
+                throw new PollHasAlreadyBeenPublished();
+            }
 
-        if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
+            $poll->title = $request->input('title', $poll->title);
+            $poll->description = $request->get('description', $poll->description);
+            $poll->short_description = $request->get('shortDescription', $poll->short_description);
+            $poll->started_at = $request->get('startDate', $poll->started_at);
+            $poll->ended_at = $request->get('endDate', $poll->ended_at);
+            $poll->question = $request->get('question', $poll->question);
+            $poll->emails_list_id = $request->get('emailListId', $poll->emails_list_id);
+
+            if ($request->input('publish')) {
+                $poll->published_at = Carbon::now();
+            }
+
+            $poll->save();
+
+            if ($request->input('publish')) {
+                dispatch(new SendInvitations($poll));
+            }
+
+            DB::commit();
+
+            return new PollResource($poll);
+        } catch (\Exception $exception) {
+            DB::rollback();
+
+            throw $exception;
         }
-
-        /** @var Poll $poll */
-        $poll = Poll::where([
-            'id' => $id,
-            'creator_id' => $request->user()->id,
-            'published_at' => null,
-        ])->firstOrFail();
-
-        $poll->title = $request->get('title');
-        $poll->description = $request->get('description', $poll->description);
-        $poll->short_description = $request->get('shortDescription', $poll->short_description);
-        $poll->started_at = $request->get('startDate', $poll->started_at);
-        $poll->ended_at = $request->get('endDate', $poll->ended_at);
-        $poll->question = $request->get('question', $poll->question);
-        $poll->emails_list_id = $request->get('emailListId', $poll->emails_list_id);
-        $poll->save();
-
-        return (new PollResource($poll))->response()->setStatusCode(201);
     }
 
     public function delete(Request $request, int $id)
@@ -148,38 +144,40 @@ class PollsController extends Controller
         return response('', 204);
     }
 
-    public function publish(Request $request, int $id)
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function validated(Request $request): array
     {
-        $this->validate($request, [
+        $validator = validator($request->all(), [
             'title' => 'required',
-            'description' => 'required|max:1500',
-            'shortDescription' => 'required|max:350',
-            'startDate' => 'required|date|before:endDate',
-            'endDate' => 'required|date|after:startDate',
-            'question.title' => 'required|max:500',
-            'question.options' => 'required|min:2',
-            'emailListId' => 'required|integer|exists:emails_lists,id,owner_id,' . $request->user()->id,
+            'description' => 'required_if:publish,true|max:1500',
+            'shortDescription' => 'required_if:publish,true|max:350',
+            'startDate' => 'required_if:publish,true',
+            'endDate' => 'required_if:publish,true',
+            'question' => 'array',
+            'question.title' => 'required_if:publish,true|max:500',
+            'question.options' => 'required_if:publish,true|min:2',
+            'emailListId' => 'required_if:publish,true',
+            'publish' => 'boolean',
         ]);
 
-        /** @var Poll $poll */
-        $poll = Poll::where([
-            'id' => $id,
-            'creator_id' => $request->user()->id,
-            'published_at' => null,
-        ])->firstOrFail();
+        $validator->sometimes('startDate', 'date|before:endDate', function ($input) {
+            return !empty($input->endDate);
+        });
 
-        $poll->title = $request->title;
-        $poll->description = $request->description;
-        $poll->short_description = $request->shortDescription;
-        $poll->started_at = $request->startDate;
-        $poll->ended_at = $request->endDate;
-        $poll->question = $request->question;
-        $poll->emails_list_id = $request->emailListId;
-        $poll->published_at = Carbon::now();
-        $poll->save();
+        $validator->sometimes('endDate', 'date|after:startDate', function ($input) {
+            return !empty($input->startDate);
+        });
 
-        dispatch(new SendInvitations($poll));
+        $validator->sometimes('emailListId', 'integer|exists:emails_lists,id,owner_id,' . $request->user()->id, function ($input) {
+            return !empty($input->emailListId);
+        });
 
-        return (new PollResource($poll))->response()->setStatusCode(201);
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
+
+        return $validator->validated();
     }
 }
