@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTable extends Migration
+class CreatePollsVotersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('polls_voters', function (Blueprint $table) {
             $table->id();
-            $table->string('email')->unique();
-            $table->boolean('active')->default(true);
-            $table->timestamps();
+            $table->foreignId('voter_id')->constrained('users');
+            $table->foreignId('poll_id')->constrained('polls');
+            $table->timestamp('voted_at');
         });
     }
 
@@ -28,6 +28,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('polls_voters');
     }
 }
