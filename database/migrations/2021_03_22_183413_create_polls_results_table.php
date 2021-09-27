@@ -15,11 +15,9 @@ class CreatePollsResultsTable extends Migration
     {
         Schema::create('polls_results', function (Blueprint $table) {
             $table->id();
-            $table->string('token');
-            $table->unsignedBigInteger('poll_id');
-            $table->foreign('poll_id')->references('id')->on('polls');
+            $table->string('token')->unique();
+            $table->foreignId('poll_id')->constrained('polls');
             $table->text('choice');
-            $table->integer('choice_index');
         });
     }
 

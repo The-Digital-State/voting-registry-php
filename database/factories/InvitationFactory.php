@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Invitation;
-use App\Models\Poll;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class InvitationFactory extends Factory
@@ -19,16 +19,13 @@ class InvitationFactory extends Factory
      * Define the model's default state.
      *
      * @return array
+     * @throws \Exception
      */
-    public function definition(): array
+    public function definition()
     {
-        $pollId = $this->faker->numberBetween(1, Poll::count());
-
         return [
             'token' => bin2hex(random_bytes(16)),
             'email' => $this->faker->unique()->safeEmail,
-            'voted_at' => $this->faker->boolean ? new \DateTime() : null,
-            'poll_id' => $pollId
         ];
     }
 }

@@ -7,9 +7,19 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EmailsListFactory extends Factory
 {
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
     protected $model = EmailsList::class;
 
-    public function definition(): array
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
     {
         $emails = [];
         $emailsCount = $this->faker->numberBetween(5, 50);

@@ -2,27 +2,22 @@
 
 namespace Database\Seeders;
 
-use App\Models\EmailsList;
-use App\Models\Invitation;
-use App\Models\Poll;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Seed the application's database.
      *
      * @return void
      */
     public function run()
     {
-        User::factory()
-            ->count(10)
-            ->has(EmailsList::factory()->count(5))
-            ->has(Poll::factory()->count(2))
-            ->create();
-
-        Invitation::factory()->count(20)->create();
+        $this->call([
+            UserSeeder::class,
+            EmailsListSeeder::class,
+            PollSeeder::class,
+            InvitationSeeder::class
+        ]);
     }
 }

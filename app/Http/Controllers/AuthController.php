@@ -2,77 +2,148 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use App\Http\Api\Azure;
 use App\Models\Invitation;
-use Illuminate\Support\Facades\Http;
+use App\Models\User;
+use Exception;
 
 class AuthController extends Controller
 {
-    public function getJwt(string $invitationToken): JsonResponse
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
     {
-        $invitation = Invitation::where('token', $invitationToken)->first();
-        if (!$invitation) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+        $this->middleware('auth:api', ['except' => ['login', 'loginByInvitation', 'loginByAzure']]);
+    }
+
+    /**
+     * Get a JWT via given credentials.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function login(): \Illuminate\Http\JsonResponse
+    {
+        $credentials = request(['email', 'password']);
+
+        if (!$token = auth()->attempt($credentials)) {
+            abort(401, 'Unauthorized');
         }
 
-        $user = User::where('email', $invitation->email)->firstOr(function () use ($invitation) {
-            return User::create([
-                'email' => $invitation->email,
-                'active' => true,
-            ]);
-        });
-
-        $jwtAccessToken = Auth::claims(['available_poll_id' => $invitation->poll_id])->login($user);
-
-        return response()->json([
-            'token' => $jwtAccessToken,
-            'token_type' => 'bearer',
-            'expires_in' => Auth::factory()->getTTL() * 60
-        ]);
+        return $this->respondWithToken($token);
     }
 
-    public function invalidateJwt()
+    /**
+     * Get a JWT via given invitation token.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function loginByInvitation(): \Illuminate\Http\JsonResponse
     {
-        Auth::invalidate();
+        $invitation = Invitation::whereToken(request('token'))->notExpired()->first();
 
-        return response('');
+        if (!$invitation) {
+            abort(401, 'Unauthorized');
+        }
+
+        $user = User::whereEmail($invitation->email)->firstOrNew(['email' => $invitation->email]);
+
+        if (!$user->email_verified_at) {
+            $user->email_verified_at = now();
+        }
+
+        if ($user->doesntExist() || $user->isDirty()) {
+            $user->save();
+        }
+
+        return $this->respondWithToken(auth()->login($user));
     }
 
-    public function loginByAzure(Request $request): JsonResponse
+    /**
+     * Get a JWT via given azure access token
+     *
+     * @param string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function loginByAzure(): \Illuminate\Http\JsonResponse
     {
-        $this->validate($request, [
-            'access_token' => 'required',
-        ]);
+        $accessToken = request('accessToken');
+
+        if (!$accessToken) {
+            abort(401, 'Unauthorized');
+        }
 
         try {
-            $response = Http::withToken($request->input('access_token'))
-                ->withHeaders(['Content-Type' => 'application/json'])
-                ->get('https://graph.microsoft.com/v1.0/me');
-
+            $response = Azure::getProfile($accessToken);
             $response->throw();
 
             $profile = $response->json();
 
-            $user = User::where('email', $profile['userPrincipalName'])
-                ->firstOr(function () use ($profile) {
-                    return User::create([
-                        'email' => $profile['userPrincipalName'],
-                        'active' => true,
-                    ]);
-                });
+            $user = User::whereEmail($profile['userPrincipalName'])
+                ->firstOrNew(['email' => $profile['userPrincipalName']]);
 
-            $jwtAccessToken = Auth::login($user);
+            if (!$user->email_verified_at) {
+                $user->email_verified_at = now();
+            }
 
-            return response()->json([
-                'token' => $jwtAccessToken,
-                'token_type' => 'bearer',
-                'expires_in' => Auth::factory()->getTTL() * 60
-            ]);
-        } catch (\Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 401);
+            if ($user->doesntExist() || $user->isDirty()) {
+                $user->save();
+            }
+
+            return $this->respondWithToken(auth()->login($user));
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
+    }
+
+    /**
+     * Get the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function me(): \Illuminate\Http\JsonResponse
+    {
+        return response()->json(auth()->user()->only(['name', 'email']));
+    }
+
+    /**
+     * Log the user out (Invalidate the token).
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout(): \Illuminate\Http\JsonResponse
+    {
+        auth()->logout();
+
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refresh(): \Illuminate\Http\JsonResponse
+    {
+        return $this->respondWithToken(auth()->refresh());
+    }
+
+    /**
+     * Get the token array structure.
+     *
+     * @param string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken(string $token): \Illuminate\Http\JsonResponse
+    {
+        return response()->json([
+            'token' => $token,
+            'tokenType' => 'bearer',
+            'expiresIn' => auth()->factory()->getTTL() * 60
+        ]);
     }
 }

@@ -2,37 +2,64 @@
 
 namespace App\Models;
 
-use App\Observers\PollObserver;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class Poll
+ * App\Models\Poll
+ *
+ * @property int $id
+ * @property int $owner_id
+ * @property int|null $emails_list_id
  * @property string $title
- * @property string $description
- * @property string $short_description
- * @property Carbon|null $started_at
- * @property Carbon|null $ended_at
- * @property Carbon|null $published_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property array $question
- * @property integer $emails_list_id
- * @property integer $creator_id
- * @property-read User $creator
- * @property-read EmailsList $emailsList
- * @property-read Invitation[] $invitations
- * @property-read PollResult[] $results
- * @package App\Models
+ * @property string|null $description
+ * @property string|null $short_description
+ * @property array|null $question
+ * @property \Illuminate\Support\Carbon|null $start
+ * @property \Illuminate\Support\Carbon|null $end
+ * @property \Illuminate\Support\Carbon|null $published_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\EmailsList|null $emailsList
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Invitation[] $invitations
+ * @property-read int|null $invitations_count
+ * @property-read \App\Models\User $owner
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PollResult[] $results
+ * @property-read int|null $results_count
+ * @method static Builder|Poll draft()
+ * @method static Builder|Poll newModelQuery()
+ * @method static Builder|Poll newQuery()
+ * @method static Builder|Poll published()
+ * @method static Builder|Poll query()
+ * @method static Builder|Poll whereCreatedAt($value)
+ * @method static Builder|Poll whereDescription($value)
+ * @method static Builder|Poll whereEmailsListId($value)
+ * @method static Builder|Poll whereEnd($value)
+ * @method static Builder|Poll whereId($value)
+ * @method static Builder|Poll whereOwnerId($value)
+ * @method static Builder|Poll wherePublishedAt($value)
+ * @method static Builder|Poll whereQuestion($value)
+ * @method static Builder|Poll whereShortDescription($value)
+ * @method static Builder|Poll whereStart($value)
+ * @method static Builder|Poll whereTitle($value)
+ * @method static Builder|Poll whereUpdatedAt($value)
+ * @mixin \Eloquent
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @method static \Database\Factories\PollFactory factory(...$parameters)
+ * @method static \Illuminate\Database\Query\Builder|Poll onlyTrashed()
+ * @method static Builder|Poll whereDeletedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|Poll withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Poll withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PollVoter[] $voters
+ * @property-read int|null $voters_count
  */
 class Poll extends Model
 {
-    use HasFactory;
-    use PollObserver;
+    use HasFactory, SoftDeletes;
 
     /**
      * The table associated with the model.
@@ -41,15 +68,18 @@ class Poll extends Model
      */
     protected $table = 'polls';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[]
+     */
     protected $fillable = [
         'title',
         'description',
         'short_description',
-        'started_at',
-        'ended_at',
+        'start',
+        'end',
         'question',
-        'emails_list_id',
-        'creator_id'
     ];
 
     /**
@@ -59,10 +89,20 @@ class Poll extends Model
      */
     protected $casts = [
         'question' => 'array',
-        'started_at' => 'datetime',
-        'ended_at' => 'datetime',
+        'start' => 'datetime',
+        'end' => 'datetime',
         'published_at' => 'datetime',
     ];
+
+    /**
+     * Determine if poll is currently taking part in voting
+     *
+     * @return bool
+     */
+    public function isInVoting(): bool
+    {
+        return $this->published_at && $this->start->isBefore(now()) && $this->end->isAfter(now());
+    }
 
     /**
      * Scope a query to only include draft polls.
@@ -86,23 +126,53 @@ class Poll extends Model
         return $query->whereNotNull('published_at');
     }
 
-    public function creator(): BelongsTo
+    /**
+     * Owner(User) relation
+     *
+     * @return BelongsTo
+     */
+    public function owner(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'creator_id');
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
+    /**
+     * EmailsList(s) relation
+     *
+     * @return BelongsTo
+     */
     public function emailsList(): BelongsTo
     {
         return $this->belongsTo(EmailsList::class, 'emails_list_id');
     }
 
+    /**
+     * Invitation relation
+     *
+     * @return HasMany
+     */
     public function invitations(): HasMany
     {
         return $this->hasMany(Invitation::class, 'poll_id');
     }
 
+    /**
+     * Poll results relation
+     *
+     * @return HasMany
+     */
     public function results(): HasMany
     {
         return $this->hasMany(PollResult::class, 'poll_id');
+    }
+
+    /**
+     * Poll voters relation
+     *
+     * @return HasMany
+     */
+    public function voters(): HasMany
+    {
+        return $this->hasMany(PollVoter::class, 'poll_id');
     }
 }

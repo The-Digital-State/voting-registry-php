@@ -12,6 +12,7 @@ class InvitationCreated extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    /** @var Invitation */
     protected $invitation;
 
     /**
@@ -21,13 +22,13 @@ class InvitationCreated extends Notification implements ShouldQueue
      */
     public function __construct(Invitation $invitation)
     {
-        $this->invitation = $invitation;
+        $this->invitation = $invitation->withoutRelations();
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -38,7 +39,7 @@ class InvitationCreated extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
@@ -47,7 +48,7 @@ class InvitationCreated extends Notification implements ShouldQueue
             ->subject('Invitation')
             ->line('Hello,')
             ->line("You have been invited to take a vote \"{$this->invitation->poll->title}\", that starts on the
-            {$this->invitation->poll->started_at->format('l, j F Y')}")
+            {$this->invitation->poll->start->format('l, j F Y')}")
             ->line("This is your token: {$this->invitation->token}");
 //            ->action('This is your token: {$invitation->token}', url('/'))
     }
@@ -55,7 +56,7 @@ class InvitationCreated extends Notification implements ShouldQueue
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function toArray($notifiable)

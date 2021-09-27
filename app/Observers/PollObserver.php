@@ -4,16 +4,19 @@ namespace App\Observers;
 
 use App\Models\Poll;
 
-trait PollObserver
+class PollObserver
 {
-    protected static function boot()
+    /**
+     * Handle the Poll "saving" event.
+     *
+     * @param \App\Models\Poll $poll
+     * @return void
+     * @throws \Exception
+     */
+    public function saving(Poll $poll)
     {
-        parent::boot();
-
-        static::saving(function (Poll $poll) {
-            $poll->started_at = !empty($poll->started_at) ? $poll->started_at : null;
-            $poll->ended_at = !empty($poll->ended_at) ? $poll->ended_at : null;
-            $poll->emails_list_id = !empty($poll->emails_list_id) ? $poll->emails_list_id : null;
-        });
+        $poll->start = !empty($poll->start) ? $poll->start : null;
+        $poll->end = !empty($poll->end) ? $poll->end : null;
+        $poll->emails_list_id = !empty($poll->emails_list_id) ? $poll->emails_list_id : null;
     }
 }
