@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePollsVotersTable extends Migration
+class CreateVotersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreatePollsVotersTable extends Migration
      */
     public function up()
     {
-        Schema::create('polls_voters', function (Blueprint $table) {
+        Schema::create('voters', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('voter_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users');
             $table->foreignId('poll_id')->constrained('polls');
-            $table->timestamp('voted_at');
+            $table->timestamp('voted_at')->nullable();
         });
     }
 

@@ -16,17 +16,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $voted_at
  * @property-read \App\Models\Poll $poll
  * @property-read \App\Models\User $voter
- * @method static \Illuminate\Database\Eloquent\Builder|PollVoter newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PollVoter newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PollVoter query()
- * @method static \Illuminate\Database\Eloquent\Builder|PollVoter whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PollVoter wherePollId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PollVoter whereVotedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|PollVoter whereVoterId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Voter newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Voter newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Voter query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Voter whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Voter wherePollId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Voter whereVotedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Voter whereUserId($value)
  * @mixin \Eloquent
- * @method static Builder|PollVoter voted()
+ * @method static Builder|Voter voted()
+ * @property int $user_id
+ * @property-read \App\Models\User $user
  */
-class PollVoter extends Model
+class Voter extends Model
 {
     use HasFactory;
 
@@ -35,7 +37,7 @@ class PollVoter extends Model
      *
      * @var string
      */
-    protected $table = 'polls_voters';
+    protected $table = 'voters';
 
     /**
      * Indicates if the model should be timestamped.
@@ -56,9 +58,9 @@ class PollVoter extends Model
      *
      * @return BelongsTo
      */
-    public function voter(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'voter_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

@@ -2,8 +2,9 @@
 
 namespace App\Policies;
 
+use App\Models\Invitation;
 use App\Models\Poll;
-use App\Models\PollVoter;
+use App\Models\Voter;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
@@ -106,15 +107,13 @@ class PollPolicy
     public function vote(User $user, Poll $poll): Response|bool
     {
         if (!$poll->isInVoting()) {
-            print_r('invoting');
             return false;
         }
 
-        if (!in_array($user->email, $poll->emailsList->emails)) {
-            print_r('in_array');
+        if (!Invitation::wherePollId($poll->id)->whereEmail($user->email)->first()) {
             return false;
         }
 
-        return !PollVoter::whereVoterId($user->id)->wherePollId($poll->id)->first();
+        return !Voter::whereVoterId($user->id)->wherePollId($poll->id)->first();
     }
 }

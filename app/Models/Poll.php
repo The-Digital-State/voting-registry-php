@@ -54,7 +54,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|Poll whereDeletedAt($value)
  * @method static \Illuminate\Database\Query\Builder|Poll withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Poll withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PollVoter[] $voters
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Voter[] $voters
  * @property-read int|null $voters_count
  */
 class Poll extends Model
@@ -173,6 +173,6 @@ class Poll extends Model
      */
     public function voters(): HasMany
     {
-        return $this->hasMany(PollVoter::class, 'poll_id');
+        return $this->hasMany(Voter::class, 'poll_id');
     }
 }

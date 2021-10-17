@@ -7,9 +7,10 @@ use App\Http\Requests\PollUpdateRequest;
 use App\Http\Resources\PollResource;
 use App\Http\Resources\PollResultResource;
 use App\Jobs\InvitationsSend;
+use App\Models\Invitation;
 use App\Models\Poll;
 use App\Models\PollResult;
-use App\Models\PollVoter;
+use App\Models\Voter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -215,9 +216,17 @@ class PollController extends Controller
      * @param $id
      * @return \Illuminate\Http\Response
      */
-    public function canVote($id): \Illuminate\Http\Response
+    public function canVote(Request $request, $id): \Illuminate\Http\Response
     {
-        return response(['can' => request()->user()->can('vote', Poll::withTrashed()->findOrFail($id))]);
+        $poll = Poll::withTrashed()->findOrFail($id);
+        $invitation = Invitation::wherePollId($id)->whereEmail($request->user()->email)->exists();
+        $voter = Voter::wherePollId($id)->whereUserId($request->user()->id)->first();
+
+        return response([
+            'canVote' => request()->user()->can('vote', $poll),
+            'invited' => !!$invitation,
+            'voted' => $voter && $voter->voted_at,
+        ]);
     }
 
     /**
@@ -244,9 +253,10 @@ class PollController extends Controller
         try {
             DB::beginTransaction();
 
-            $voter = new PollVoter();
+            $voter = new Voter();
             $voter->voter_id = $request->user()->id;
             $voter->poll_id = $poll->id;
+            $voter->voted_at = now();
             $voter->save();
 
             $pollResult = new PollResult();

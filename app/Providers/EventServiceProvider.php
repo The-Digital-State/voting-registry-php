@@ -5,12 +5,12 @@ namespace App\Providers;
 use App\Models\Invitation;
 use App\Models\Poll;
 use App\Models\PollResult;
-use App\Models\PollVoter;
+use App\Models\Voter;
 use App\Models\User;
 use App\Observers\InvitationObserver;
 use App\Observers\PollObserver;
 use App\Observers\PollResultObserver;
-use App\Observers\PollVoterObserver;
+use App\Observers\VoterObserver;
 use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -42,6 +42,5 @@ class EventServiceProvider extends ServiceProvider
         Invitation::observe(InvitationObserver::class);
         Poll::observe(PollObserver::class);
         PollResult::observe(PollResultObserver::class);
-        PollVoter::observe(PollVoterObserver::class);
     }
 }
