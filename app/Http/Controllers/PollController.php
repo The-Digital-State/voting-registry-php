@@ -254,7 +254,7 @@ class PollController extends Controller
             DB::beginTransaction();
 
             $voter = new Voter();
-            $voter->voter_id = $request->user()->id;
+            $voter->user_id = $request->user()->id;
             $voter->poll_id = $poll->id;
             $voter->voted_at = now();
             $voter->save();

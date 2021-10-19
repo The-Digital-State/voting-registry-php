@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\PollVoter
  *
  * @property int $id
- * @property int $voter_id
+ * @property int $user_id
  * @property int $poll_id
  * @property string $voted_at
  * @property-read \App\Models\Poll $poll
@@ -25,7 +25,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Voter whereUserId($value)
  * @mixin \Eloquent
  * @method static Builder|Voter voted()
- * @property int $user_id
  * @property-read \App\Models\User $user
  */
 class Voter extends Model
