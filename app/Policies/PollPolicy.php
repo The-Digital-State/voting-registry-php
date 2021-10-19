@@ -114,6 +114,6 @@ class PollPolicy
             return false;
         }
 
-        return !Voter::whereVoterId($user->id)->wherePollId($poll->id)->first();
+        return !Voter::whereUserId($user->id)->wherePollId($poll->id)->first();
     }
 }
