@@ -3,22 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Api\Azure;
+use App\Http\Resources\UserResource;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Models\Voter;
 use Exception;
 
 class AuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['login', 'loginByInvitation', 'loginByAzure']]);
-    }
-
     /**
      * Get a JWT via given credentials.
      *
@@ -42,7 +34,8 @@ class AuthController extends Controller
      */
     public function loginByInvitation(): \Illuminate\Http\JsonResponse
     {
-        $invitation = Invitation::whereToken(request('token'))->notExpired()->first();
+
+        $invitation = Invitation::whereToken(request('token'))->first();
 
         if (!$invitation) {
             abort(401, 'Unauthorized');
@@ -102,11 +95,11 @@ class AuthController extends Controller
     /**
      * Get the authenticated User.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return UserResource
      */
-    public function me(): \Illuminate\Http\JsonResponse
+    public function me(): UserResource
     {
-        return response()->json(auth()->user()->only(['name', 'email']));
+        return new UserResource(auth()->user());
     }
 
     /**

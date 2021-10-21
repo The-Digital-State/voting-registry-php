@@ -12,22 +12,11 @@ use App\Models\Poll;
 use App\Models\PollResult;
 use App\Models\Voter;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class PollController extends Controller
 {
-    /**
-     * Create a new EmailsListController instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['view', 'result', 'results', 'statistic']]);
-    }
-
     /**
      * Get a single Poll
      *
@@ -222,11 +211,11 @@ class PollController extends Controller
         $invitation = Invitation::wherePollId($id)->whereEmail($request->user()->email)->exists();
         $voter = Voter::wherePollId($id)->whereUserId($request->user()->id)->first();
 
-        return response([
+        return response(['data' => [
             'canVote' => request()->user()->can('vote', $poll),
             'invited' => !!$invitation,
             'voted' => $voter && $voter->voted_at,
-        ]);
+        ]]);
     }
 
     /**
@@ -253,7 +242,8 @@ class PollController extends Controller
         try {
             DB::beginTransaction();
 
-            $voter = new Voter();
+            $voter = Voter::wherePollId($poll->id)->whereUserId($request->user()->id)->firstOrNew();
+
             $voter->user_id = $request->user()->id;
             $voter->poll_id = $poll->id;
             $voter->voted_at = now();
@@ -323,7 +313,7 @@ class PollController extends Controller
         $page = (int)$request->get('page', 1);
         $perPage = (int)$request->get('perPage', 10);
 
-        $query = PollResult::wherePollId($poll->id);
+        $query = PollResult::wherePollId($poll->id)->with('poll');
         $total = $query->count();
 
         if ($request->has('sort')) {
@@ -344,14 +334,33 @@ class PollController extends Controller
     }
 
     /**
-     * @throws \Exception
+     * Get poll statistic
+     *
+     * @param $id
+     * @return \Illuminate\Http\Response
      */
-    public function statistic($id)
+    public function statistic($id): \Illuminate\Http\Response
     {
         $poll = Poll::withTrashed()->published()->findOrFail($id);
 
-        if ($poll->isInVoting()) {
-            throw new \Exception('Statistic are available only after the end of voting');
+        $voted = Voter::wherePollId($poll->id)->whereNotNull("voted_at")->count();
+
+        $statistic = ['all' => null, 'voted' => $voted, 'votedByChoice ' => null];
+
+        $all = &$statistic['all'];
+        $votedByChoice = &$statistic['votedByChoice'];
+
+        if (!$poll->isInVoting()) {
+            $all = Invitation::wherePollId($id)->count();
+            $votedByChoice = [];
+
+            foreach ($poll->question['options'] as $choice) {
+                $votedByChoice[$choice] = PollResult::wherePollId($poll->id)
+                    ->whereChoice($choice)
+                    ->count(['choice']);
+            }
         }
+
+        return response(['data' => $statistic]);
     }
 }
