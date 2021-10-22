@@ -175,3 +175,4 @@ class Poll extends Model
     {
         return $this->hasMany(Voter::class, 'poll_id');
     }
+}
