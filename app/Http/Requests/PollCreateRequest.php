@@ -22,7 +22,7 @@ class PollCreateRequest extends FormRequest
             'question' => 'array',
             'question.title' => 'required_if:publish,true|max:500',
             'question.options' => 'required_if:publish,true|array|min:2',
-            'question.options.*' => 'required_if:publish,true|nullable|string',
+            'question.options.*' => 'required_if:publish,true|distinct|nullable|string',
             'emailsListId' => 'required_if:publish,true',
             'publish' => 'boolean',
         ];
