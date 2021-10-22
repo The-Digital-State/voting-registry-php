@@ -1,0 +1,1451 @@
+openapi: 3.0.1
+
+info:
+  version: 0.0.1
+  title: Voting Api
+
+servers:
+  - url: http://localhost:80
+    description: Local server
+  - url: http://212.227.212.93
+    description: Stage server
+
+paths:
+#  Auth
+  /api/auth/login:
+    post:
+      summary: Get a JWT via given credentials.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: example@example.com
+                password:
+                  type: string
+                  example: password
+              required:
+                - email
+                - password
+      responses:
+        200:
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjFcL2F1dGhcL2p3dFwvZWI5ZTUwZWFmY2ZiZDRjZjRiZTg3NTYxY2E2ODE3MjYiLCJpYXQiOjE2MTgwODY1NjYsImV4cCI6MTYxODA5MDE2NiwibmJmIjoxNjE4MDg2NTY2LCJqdGkiOiI0OXFHYU1LamR5NTBudXIzIiwic3ViIjoxMSwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyIsImF2YWlsYWJsZV9wb2xsX2lkIjoxOH0.fIiH5tVZURIlCxt0MHsdjCVWGW7gMUTRqGMMTtO2RE8
+                  tokenType:
+                    type: string
+                    example: bearer
+                  expiresIn:
+                    description: Expire after 3600 seconds
+                    type: integer
+                    example: 3600
+                required:
+                  - token
+                  - tokenType
+                  - expiresIn
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/auth/invitation:
+    post:
+      summary: Get a JWT via given invitation token.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: eb9e50eafcfbd4cf4be87561ca681726
+              required:
+                - token
+      responses:
+        200:
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjFcL2F1dGhcL2p3dFwvZWI5ZTUwZWFmY2ZiZDRjZjRiZTg3NTYxY2E2ODE3MjYiLCJpYXQiOjE2MTgwODY1NjYsImV4cCI6MTYxODA5MDE2NiwibmJmIjoxNjE4MDg2NTY2LCJqdGkiOiI0OXFHYU1LamR5NTBudXIzIiwic3ViIjoxMSwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyIsImF2YWlsYWJsZV9wb2xsX2lkIjoxOH0.fIiH5tVZURIlCxt0MHsdjCVWGW7gMUTRqGMMTtO2RE8
+                  tokenType:
+                    type: string
+                    example: bearer
+                  expiresIn:
+                    description: Expire after 3600 seconds
+                    type: integer
+                    example: 3600
+                required:
+                  - token
+                  - tokenType
+                  - expiresIn
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/auth/azure:
+    post:
+      summary: Get a JWT via given azure access token.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+                  example: eb9e50eafcfbd4cf4be87561ca681726
+              required:
+                - accessToken
+      responses:
+        200:
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjFcL2F1dGhcL2p3dFwvZWI5ZTUwZWFmY2ZiZDRjZjRiZTg3NTYxY2E2ODE3MjYiLCJpYXQiOjE2MTgwODY1NjYsImV4cCI6MTYxODA5MDE2NiwibmJmIjoxNjE4MDg2NTY2LCJqdGkiOiI0OXFHYU1LamR5NTBudXIzIiwic3ViIjoxMSwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyIsImF2YWlsYWJsZV9wb2xsX2lkIjoxOH0.fIiH5tVZURIlCxt0MHsdjCVWGW7gMUTRqGMMTtO2RE8
+                  tokenType:
+                    type: string
+                    example: bearer
+                  expiresIn:
+                    description: Expire after 3600 seconds
+                    type: integer
+                    example: 3600
+                required:
+                  - token
+                  - tokenType
+                  - expiresIn
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/auth/logout:
+    post:
+      summary: Log the user out (Invalidate the token).
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: User logged out and JWT token was invalidated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successfully logged out
+                required:
+                  - message
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/auth/me:
+    post:
+      summary: Get the authenticated User.
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Authenticated User
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: John Doe
+                  email:
+                    type: string
+                    example: john-doe@example.com
+                required:
+                  - name
+                  - email
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  /api/auth/refresh:
+    post:
+      summary: Refresh a token.
+      security:
+        - BearerAuth: [ ]
+      responses:
+        200:
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjFcL2F1dGhcL2p3dFwvZWI5ZTUwZWFmY2ZiZDRjZjRiZTg3NTYxY2E2ODE3MjYiLCJpYXQiOjE2MTgwODY1NjYsImV4cCI6MTYxODA5MDE2NiwibmJmIjoxNjE4MDg2NTY2LCJqdGkiOiI0OXFHYU1LamR5NTBudXIzIiwic3ViIjoxMSwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyIsImF2YWlsYWJsZV9wb2xsX2lkIjoxOH0.fIiH5tVZURIlCxt0MHsdjCVWGW7gMUTRqGMMTtO2RE8
+                  tokenType:
+                    type: string
+                    example: bearer
+                  expiresIn:
+                    description: Expire after 3600 seconds
+                    type: integer
+                    example: 3600
+                required:
+                  - token
+                  - tokenType
+                  - expiresIn
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+#  EmailsLists
+  /api/emails-lists:
+    get:
+      summary: Get all email lists
+      responses:
+        200:
+          description: Array of email lists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 99
+                    title:
+                      type: string
+                      example: Двор Перамен
+                    emails:
+                      type: array
+                      items:
+                        type: string
+                        example: test@test.com
+                      description: Empty array if no emails
+                    createdAt:
+                      type: string
+                      example: 2021-09-19T12:33:02.000000Z
+                    updatedAt:
+                      type: string
+                      example: 2021-09-19T12:33:02.000000Z
+                  required:
+                    - id
+                    - title
+                    - emails
+                    - createdAt
+                    - updatedAt
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      summary: Create a new email list
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Двор Перамен
+                emails:
+                  type: array
+                  items:
+                    type: string
+                    example: test@test.com
+                  description: Empty array if no emails
+              required:
+                - title
+                - emails
+        required: true
+      responses:
+        201:
+          description: Email list was created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Двор Перамен
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: test@test.com
+                    description: Empty array if no emails
+                  createdAt:
+                    type: string
+                    example: 2021-09-19T12:33:02.000000Z
+                  updatedAt:
+                    type: string
+                    example: 2021-09-19T12:33:02.000000Z
+                required:
+                  - id
+                  - title
+                  - emails
+                  - createdAt
+                  - updatedAt
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: The given data was invalid.
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        title:
+                          type: array
+                          items:
+                            type: string
+                            example: The title field is required.
+                        email:
+                          type: array
+                          items:
+                            type: string
+                            example: The emails field is required.
+  /api/emails-lists/{id}:
+    get:
+      summary: Get email list
+      parameters:
+        - name: id
+          in: path
+          description: ID of email list
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Email list data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Двор Перамен
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: test@test.com
+                    description: Empty array if no emails
+                  createdAt:
+                    type: string
+                    example: 2021-09-19T12:33:02.000000Z
+                  updatedAt:
+                    type: string
+                    example: 2021-09-19T12:33:02.000000Z
+                required:
+                  - id
+                  - title
+                  - emails
+                  - createdAt
+                  - updatedAt
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Email list not found
+          content: { }
+    put:
+      summary: Update an existing creator email list
+      parameters:
+        - name: id
+          in: path
+          description: ID of email list
+          required: true
+          schema:
+            type: integer
+            example: 99
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Двор Перамен
+                emails:
+                  type: array
+                  items:
+                    type: string
+                    example: test@test.com
+                  description: Empty array if no emails
+                createdAt:
+                  type: string
+                  example: 2021-09-19T12:33:02.000000Z
+                updatedAt:
+                  type: string
+                  example: 2021-09-19T12:33:02.000000Z
+        required: true
+      responses:
+        201:
+          description: Email list was updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Двор Перамен
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: test@test.com
+                    description: Empty array if no emails
+                required:
+                  - id
+                  - title
+                  - emails
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Email list not found
+          content: { }
+        422:
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: array
+                    items:
+                      type: string
+                      example: The title field is required.
+                  emails:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+    delete:
+      summary: Delete email list
+      parameters:
+        - name: id
+          in: path
+          description: ID of email list
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        400:
+          description: Unable to delete the list of emails that is participating in the vote
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unable to delete the list of emails that is participating in the vote
+        404:
+          description: Email list not found
+          content: {}
+
+#  Polls
+  /polls:
+    get:
+      summary: Get all polls
+      responses:
+        200:
+          description: Array of polls
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 100
+                    title:
+                      type: string
+                      example: Что поставить во Дворе Перамен
+                    startDate:
+                      type: string
+                      format: date-time
+                      example: "2017-07-21T17:32:28Z"
+                      nullable: true
+                    endDate:
+                      type: string
+                      format: date-time
+                      example: "2017-07-21T17:32:28Z"
+                      nullable: true
+                    emailListTitle:
+                      type: string
+                      example: Двор Перамен
+                      nullable: true
+                    status:
+                      type: string
+                      example: draft
+                      enum:
+                        - draft
+                        - published
+                        - active
+                        - finished
+                        - closed
+                  required:
+                    - id
+                    - title
+                    - startDate
+                    - endDate
+                    - emailListTitle
+                    - status
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /poll/{id}:
+    get:
+      summary: Get poll data
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Get poll data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  description:
+                    type: string
+                    maxLength: 1500
+                    example: Полное описание. Здесь можно писать очень много букв
+                    nullable: true
+                  shortDescription:
+                    type: string
+                    maxLength: 350
+                    example: Краткое описание. Здесь можно писать чуть меньше букв
+                    nullable: true
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                    nullable: true
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                    nullable: true
+                  question:
+                    type: object
+                    nullable: true
+                    properties:
+                      title:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            optionIndex:
+                              type: integer
+                              description: The order of the option
+                            option:
+                              type: string
+                          required:
+                            - optionIndex
+                            - option
+                        example: [
+                          { "optionIndex": 1, "option": Фонтан },
+                          { "optionIndex": 2, "option": Памятник }
+                        ]
+                    required:
+                      - title
+                      - options
+                  emailListId:
+                    type: integer
+                    example: 99
+                    nullable: true
+                  status:
+                    type: string
+                    example: published
+                    enum:
+                      - draft
+                      - published
+                      - active
+                      - finished
+                      - closed
+                required:
+                  - id
+                  - title
+                  - description
+                  - shortDescription
+                  - startDate
+                  - endDate
+                  - question
+                  - emailListId
+                  - status
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Poll wasn't found
+          content: { }
+
+  /poll/draft:
+    post:
+      summary: Create a new draft poll
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Что поставить во Дворе Перамен
+                description:
+                  type: string
+                  maxLength: 1500
+                  example: Полное описание. Здесь можно писать очень много букв
+                  nullable: true
+                shortDescription:
+                  type: string
+                  maxLength: 350
+                  example: Краткое описание. Здесь можно писать чуть меньше букв
+                  nullable: true
+                startDate:
+                  type: string
+                  format: date-time
+                  example: "2017-07-21T17:32:28Z"
+                  nullable: true
+                endDate:
+                  type: string
+                  format: date-time
+                  example: "2017-07-21T17:32:28Z"
+                  nullable: true
+                question:
+                  type: object
+                  nullable: true
+                  properties:
+                    title:
+                      type: string
+                      example: Что поставить?
+                    options:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          optionIndex:
+                            type: integer
+                            description: The order of the option
+                          option:
+                            type: string
+                        required:
+                          - optionIndex
+                          - option
+                      example: [
+                        { "optionIndex": 1, "option": Фонтан },
+                        { "optionIndex": 2, "option": Памятник }
+                      ]
+                  required:
+                    - title
+                    - options
+                emailListId:
+                  type: integer
+                  example: 66
+                  nullable: true
+              required:
+                - title
+                - description
+                - shortDescription
+                - startDate
+                - endDate
+                - question
+                - emailListId
+        required: true
+      responses:
+        201:
+          description: New poll was created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  description:
+                    type: string
+                    maxLength: 1500
+                    example: Полное описание. Здесь можно писать очень много букв
+                    nullable: true
+                  shortDescription:
+                    type: string
+                    maxLength: 350
+                    example: Краткое описание. Здесь можно писать чуть меньше букв
+                    nullable: true
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                    nullable: true
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                    nullable: true
+                  question:
+                    type: object
+                    nullable: true
+                    properties:
+                      title:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            optionIndex:
+                              type: integer
+                              description: The order of the option
+                            option:
+                              type: string
+                          required:
+                            - optionIndex
+                            - option
+                        example: [
+                          { "optionIndex": 1, "option": Фонтан },
+                          { "optionIndex": 2, "option": Памятник }
+                        ]
+                    required:
+                      - title
+                      - options
+                  emailListId:
+                    type: integer
+                    example: 66
+                    nullable: true
+                  status:
+                    type: string
+                    example: draft
+                    enum:
+                      - draft
+                required:
+                  - id
+                  - title
+                  - description
+                  - shortDescription
+                  - startDate
+                  - endDate
+                  - question
+                  - emailListId
+                  - status
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: array
+                    items:
+                      type: string
+                      example: The title field is required.
+                  description:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  shortDescription:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  question.options:
+                    type: array
+                    items:
+                      type: string
+                      example: The question.options must be at least 2 characters.
+
+  /poll/draft/{id}:
+    put:
+      summary: Update an existing draft poll
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Что поставить во Дворе Перамен
+                description:
+                  type: string
+                  maxLength: 1500
+                  example: Полное описание. Здесь можно писать очень много букв
+                  nullable: true
+                shortDescription:
+                  type: string
+                  maxLength: 350
+                  example: Краткое описание. Здесь можно писать чуть меньше букв
+                  nullable: true
+                startDate:
+                  type: string
+                  format: date-time
+                  example: "2017-07-21T17:32:28Z"
+                  nullable: true
+                endDate:
+                  type: string
+                  format: date-time
+                  example: "2017-07-21T17:32:28Z"
+                  nullable: true
+                question:
+                  type: object
+                  nullable: true
+                  properties:
+                    title:
+                      type: string
+                      example: Что поставить?
+                    options:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          optionIndex:
+                            type: integer
+                            description: The order of the option
+                          option:
+                            type: string
+                        required:
+                          - optionIndex
+                          - option
+                      example: [
+                        { "optionIndex": 1, "option": Фонтан },
+                        { "optionIndex": 2, "option": Памятник }
+                      ]
+                  required:
+                    - title
+                    - options
+                emailListId:
+                  type: integer
+                  example: 66
+                  nullable: true
+              required:
+                - id
+                - title
+                - description
+                - shortDescription
+                - startDate
+                - endDate
+                - question
+                - emailListId
+        required: true
+      responses:
+        201:
+          description: The poll was updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  description:
+                    type: string
+                    maxLength: 1500
+                    example: Полное описание. Здесь можно писать очень много букв
+                    nullable: true
+                  shortDescription:
+                    type: string
+                    maxLength: 350
+                    example: Краткое описание. Здесь можно писать чуть меньше букв
+                    nullable: true
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                    nullable: true
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                    nullable: true
+                  question:
+                    type: object
+                    nullable: true
+                    properties:
+                      title:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            optionIndex:
+                              type: integer
+                              description: The order of the option
+                            option:
+                              type: string
+                          required:
+                            - optionIndex
+                            - option
+                        example: [
+                          { "optionIndex": 1, "option": Фонтан },
+                          { "optionIndex": 2, "option": Памятник }
+                        ]
+                    required:
+                      - title
+                      - options
+                  emailListId:
+                    type: integer
+                    example: 66
+                    nullable: true
+                  status:
+                    type: string
+                    example: draft
+                    enum:
+                      - draft
+                required:
+                  - id
+                  - title
+                  - description
+                  - shortDescription
+                  - startDate
+                  - endDate
+                  - question
+                  - emailListId
+                  - status
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Poll wasn't found
+          content: { }
+        422:
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: array
+                    items:
+                      type: string
+                      example: The title field is required.
+                  description:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  shortDescription:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  question.options:
+                    type: array
+                    items:
+                      type: string
+                      example: The question.options must be at least 2 characters.
+    delete:
+      summary: Delete draft poll
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Poll was deleted
+          content: { }
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Poll wasn't found
+          content: { }
+
+  /poll/publish/{id}:
+    put:
+      summary: Publish a poll
+      parameters:
+        - name: id
+          in: path
+          description: ID of email list
+          required: true
+          schema:
+            type: integer
+            example: 99
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Что поставить во Дворе Перамен
+                description:
+                  type: string
+                  maxLength: 1500
+                  example: Полное описание. Здесь можно писать очень много букв
+                shortDescription:
+                  type: string
+                  maxLength: 350
+                  example: Краткое описание. Здесь можно писать чуть меньше букв
+                  nullable: true
+                startDate:
+                  type: string
+                  format: date-time
+                  example: "2017-07-21T17:32:28Z"
+                endDate:
+                  type: string
+                  format: date-time
+                  example: "2017-07-21T17:32:28Z"
+                question:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: Что поставить?
+                    options:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          optionIndex:
+                            type: integer
+                            description: The order of the option
+                          option:
+                            type: string
+                        required:
+                          - optionIndex
+                          - option
+                      example: [
+                        { "optionIndex": 1, "option": Фонтан },
+                        { "optionIndex": 2, "option": Памятник }
+                      ]
+                  required:
+                    - title
+                    - options
+                emailListId:
+                  type: integer
+                  example: 66
+              required:
+                - title
+                - description
+                - shortDescription
+                - startDate
+                - endDate
+                - question
+                - emailListId
+        required: true
+      responses:
+        201:
+          description: Poll was published
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  description:
+                    type: string
+                    maxLength: 1500
+                    example: Полное описание. Здесь можно писать очень много букв
+                  shortDescription:
+                    type: string
+                    maxLength: 350
+                    example: Краткое описание. Здесь можно писать чуть меньше букв
+                    nullable: true
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                  question:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            optionIndex:
+                              type: integer
+                              description: The order of the option
+                            option:
+                              type: string
+                          required:
+                            - optionIndex
+                            - option
+                        example: [
+                          { "optionIndex": 1, "option": Фонтан },
+                          { "optionIndex": 2, "option": Памятник }
+                        ]
+                    required:
+                      - title
+                      - options
+                  emailListId:
+                    type: integer
+                    example: 66
+                  status:
+                    type: string
+                    example: published
+                    enum:
+                      - published
+                required:
+                  - id
+                  - title
+                  - description
+                  - shortDescription
+                  - startDate
+                  - endDate
+                  - question
+                  - emailListId
+                  - status
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Poll wasn't found
+          content: { }
+        422:
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: array
+                    items:
+                      type: string
+                      example: The title field is required.
+                  description:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  shortDescription:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  startDate:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  endDate:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  question:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+                  question.options:
+                    type: array
+                    items:
+                      type: string
+                      example: The question.options must be at least 2 characters.
+                  emailListId:
+                    type: array
+                    items:
+                      type: string
+                      example: The emails field is required.
+
+  /poll/result/{id}:
+    get:
+      summary: Get all poll data for result
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      responses:
+        200:
+          description: Finished poll data for result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 99
+                  title:
+                    type: string
+                    example: Что поставить во Дворе Перамен
+                  startDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                  endDate:
+                    type: string
+                    format: date-time
+                    example: "2017-07-21T17:32:28Z"
+                  question:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        example: Что поставить?
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            option:
+                              type: string
+                              example: Фонтан
+                            optionIndex:
+                              type: integer
+                              example: 1
+                              description: The order of the option
+                            count:
+                              type: string
+                              example: 199
+                            percentage:
+                              type: integer
+                              example: 67
+                          required:
+                            - option
+                            - optionIndex
+                            - count
+                            - percentage
+                        nullable: true
+                    required:
+                      - title
+                      - options
+                  status:
+                    type: string
+                    example: finished
+                    enum:
+                      - published
+                      - active
+                      - finished
+                  stats:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 115
+                        description: How many people had a possibility to cast a vote
+                      voted:
+                        type: integer
+                        example: 100
+                        description: How many people casted a vote
+                      unvoted:
+                        type: integer
+                        example: 15
+                        description: How many people didn't cast a vote
+                    nullable: true
+                    required:
+                      - total
+                      - voted
+                      - unvoted
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 15
+                          description: The order in the result table
+                        token:
+                          type: string
+                          example: 8723hfdsf75657sdf9gfdasd86
+                        option:
+                          type: string
+                          example: Фонтан
+                        optionIndex:
+                          type: integer
+                          example: 1
+                          description: The order of the option
+                      required:
+                        - id
+                        - token
+                        - option
+                        - optionIndex
+                    nullable: true
+                required:
+                  - id
+                  - title
+                  - startDate
+                  - endDate
+                  - question
+                  - status
+                  - stats
+                  - results
+        404:
+          description: Poll was not found
+          content: { }
+
+  /poll/cast/{id}:
+    put:
+      summary: Cast a vote
+      parameters:
+        - name: id
+          in: path
+          description: ID of a poll
+          required: true
+          schema:
+            type: integer
+            example: 99
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                option:
+                  type: string
+                  example: Фонтан
+                optionIndex:
+                  type: integer
+                  example: 1
+                  description: The order of the option
+              required:
+                - option
+                - optionIndex
+        required: true
+      responses:
+        201:
+          description: Cast token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: a9sd98ds7f5d65gsdg887gf8
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Poll was not found
+          content: { }
+        422:
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  option:
+                    type: array
+                    items:
+                      type: string
+                      example: The option field is required.
+                  optionIndex:
+                    type: array
+                    items:
+                      type: string
+                      example: The optionIndex field is required.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: JWT token is missing or invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Unauthenticated.
+
+security:
+  - BearerAuth: []

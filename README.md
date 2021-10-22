@@ -1,21 +1,18 @@
-# Voting PHP Registry
+Run `make up` and open the page `http://localhost`
 
-Here you'll find an implementation of a meta-belarus voting registry implemented in PHP.
+Run `make down` to down all docker containers
 
-## Configuring
+Run `make exec` to run shell in container
 
-In your env file specify `DB=mysql://root:secret@localhost/voting-registry-php` then run lumen
-with `php -S localhost:8000 -t public`
+### inside php container
 
-## Data Modeling
+Run `php artisan migrate:fresh` to drop all tables and run all migrations
 
-We're using atk4/data (https://github.com/atk4/data, https://agile-data.readthedocs.io/en/develop/index.html),
-to simplify database interaction. You can easily define 'Models' inside 'app/Models' folder. Simply duplicate
-existing file and adopt.
+Run `php artisan db:seed` to seed the database with records
 
-After you have added a new model, update Http/Controllers/Migrator and invoke /migrate endpoint. This will
-create table in MySQL.
+Run `./vendor/bin/phpunit` to run tests
 
-## Attaching API endpoints
+## Specs OPEN API
 
-
+Swagger: `http://localhost/specs/swagger/index.html`  
+Redoc: `http://localhost/specs/redoc/index.html`

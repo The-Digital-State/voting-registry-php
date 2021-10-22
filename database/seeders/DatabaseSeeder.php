@@ -7,12 +7,17 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Seed the application's database.
      *
      * @return void
      */
     public function run()
     {
-        // $this->call('UsersTableSeeder');
+        $this->call([
+            UserSeeder::class,
+            EmailsListSeeder::class,
+            PollSeeder::class,
+            InvitationSeeder::class
+        ]);
     }
 }
