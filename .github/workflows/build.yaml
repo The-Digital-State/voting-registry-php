@@ -29,4 +29,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ghcr.io/pfil-waka/voting-registry-php:latest
+          file: docker/php/Dockerfile
+          tags: ghcr.io/pfil-waka/voting-registry-php/php:latest
