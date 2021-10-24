@@ -1,4 +1,4 @@
-name: build API
+name: build nginx
 on:
   push:
     branches:
