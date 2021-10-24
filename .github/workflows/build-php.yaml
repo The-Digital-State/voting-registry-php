@@ -32,4 +32,4 @@ jobs:
         with:
           push: true
           file: docker/php/Dockerfile
-          tags: ghcr.io/pfil-waka/voting-registry-frontend:${{env.GITHUB_REF_SLUG}}-${{github.run_number}}
+          tags: ghcr.io/pfil-waka/voting-registry-php:${{env.GITHUB_REF_SLUG}}-${{github.run_number}}
