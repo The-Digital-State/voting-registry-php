@@ -25,6 +25,8 @@ COPY . /app
 COPY .env.prod /app/.env
 RUN composer update
 
+RUN chmod 777 /app/storage/logs
+
 RUN chmod +x pre-start.sh
 
 ENTRYPOINT ["./pre-start.sh"]
