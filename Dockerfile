@@ -1,2 +1,0 @@
-FROM nginx
-ADD README.md README.md
