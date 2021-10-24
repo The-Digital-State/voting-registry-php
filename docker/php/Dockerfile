@@ -17,5 +17,14 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN docker-php-ext-install pdo pdo_mysql
 
 # xdebug
+WORKDIR /app
 RUN pecl install xdebug && docker-php-ext-enable xdebug
 COPY ./docker/php/ext-xdebug.ini /usr/local/etc/php/conf.d/ext-xdebug.ini
+
+COPY . /app
+COPY .env.prod /app/.env
+RUN composer update
+
+RUN chmod +x pre-start.sh
+
+ENTRYPOINT ["./pre-start.sh"]
